@@ -53,9 +53,15 @@ export default function decorate(block) {
         }
       }, 50);
 
-      // ON ACTIVE LE BLOC RISEUP VIA LE HTML DIRECT
+      // FORCE L'AFFICHAGE DU BLOC RISEUP ET DE SA SECTION PARENTE
       const riseupBlock = document.querySelector('.riseup');
       if (riseupBlock) {
+        // On force la section AEM globale à devenir visible
+        const section = riseupBlock.closest('.section');
+        if (section) {
+          section.style.display = 'block';
+          section.style.opacity = '1';
+        }
         riseupBlock.setAttribute('data-status', 'active');
       }
 
