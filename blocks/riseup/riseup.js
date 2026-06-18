@@ -1,25 +1,37 @@
 export default function decorate(block) {
-  block.classList.add('riseup');
+  // Force l'ajout de la classe au cas où AEM l'enlève
+  block.classList.add('riseup'); 
 
-  // Injecter le CSS d'animation directement pour éviter tout problème de fichier externe
-  const style = document.createElement('style');
-  style.textContent = `
-    .riseup {
-      opacity: 0 !important;
-      transform: translateY(60px) !important;
-      transition: transform 2s cubic-bezier(0.25, 1, 0.5, 1), opacity 2s !important;
+  // On force la section parente d'AEM à se cacher au tout début pour éviter les sauts de page
+  const section = block.closest('.section');
+  if (section) {
+    section.style.transition = 'opacity 1s';
+  }
+
+  // Styles CSS ultra-prioritaires injectés directement
+  block.style.opacity = '0';
+  block.style.transform = 'translateY(100px)';
+  block.style.transition = 'transform 2s cubic-bezier(0.25, 1, 0.5, 1), opacity 2s';
+
+  // Un observateur en JS pour appliquer les styles en direct selon l'attribut
+  const observer = new MutationObserver(() => {
+    const status = block.getAttribute('data-status');
+    if (status === 'active') {
+      block.style.opacity = '1';
+      block.style.transform = 'translateY(0)';
+    } else if (status === 'zombie-out') {
+      block.style.transition = 'transform 2.5s ease-in, opacity 2s';
+      block.style.transform = 'translateY(-100vh)';
+      block.style.opacity = '0';
+    } else {
+      // Reset à l'état initial masqué
+      block.style.transition = 'none';
+      block.style.opacity = '0';
+      block.style.transform = 'translateY(100px)';
     }
-    .riseup[data-status="active"] {
-      opacity: 1 !important;
-      transform: translateY(0) !important;
-    }
-    .riseup[data-status="zombie-out"] {
-      opacity: 0 !important;
-      transform: translateY(-100vh) !important;
-      transition: transform 2.5s ease-in, opacity 2s !important;
-    }
-  `;
-  document.head.appendChild(style);
+  });
+  
+  observer.observe(block, { attributes: true, attributeFilter: ['data-status'] });
 
   const contentContainer = document.createElement('div');
   contentContainer.className = 'riseup-content';
@@ -47,7 +59,6 @@ export default function decorate(block) {
     zombieAudio.currentTime = 0;
     zombieAudio.play().catch(err => console.log("Audio bloqué :", err));
 
-    // Déclencher l'animation CSS de fuite vers le haut
     block.setAttribute('data-status', 'zombie-out');
 
     setTimeout(() => {
@@ -64,7 +75,11 @@ export default function decorate(block) {
       // Réveiller Falldown
       document.dispatchEvent(new CustomEvent('zombieRiseAgain'));
       
-      // Reset de l'attribut pour le prochain coup
+      // On cache à nouveau la section parente d'AEM pour le prochain tour
+      if (section) {
+        section.style.display = 'none';
+      }
+
       setTimeout(() => {
         block.removeAttribute('data-status');
       }, 500);
