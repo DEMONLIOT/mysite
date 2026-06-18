@@ -1,39 +1,55 @@
 export default function decorate(block) {
   block.classList.add('global-nav-bar');
 
-  // Version simplifiée des liens (chemins en minuscules)
-  const menuItems = [
-    { text: 'Accueil', url: '/' },
-    { text: 'Pendu', url: '/pendu' },
-    { text: 'Christophe', url: '/edit-christophe-da' },
-    { text: 'Duy', url: '/edit-duy-da' },
-    { text: 'Martin', url: '/edit-martin-da' },
-    { text: 'Quentin', url: '/edit-quentin-da' },
-    { text: 'Vincent', url: '/edit-vincent-da' }
-  ];
+  // On récupère TOUS les liens du bloc d'origine (ceux de ton tableau Word/Google Doc)
+  const allLinks = Array.from(block.querySelectorAll('a'));
+  
+  // Si AEM n'a pas encore chargé le contenu, on s'arrête pour éviter de vider la barre
+  if (allLinks.length === 0) return;
 
   const navLinksContainer = document.createElement('nav');
   navLinksContainer.className = 'nav-links-list';
 
-  menuItems.forEach((item) => {
+  allLinks.forEach((linkElement) => {
+    // On crée notre bouton de navigation
     const navItem = document.createElement('a');
     navItem.className = 'nav-item-link';
     
-    // Si tu es en local (localhost) ou sur hlx.page, on s'assure que le lien reste sur le même domaine
-    navItem.href = `${window.location.origin}${item.url}`;
-    navItem.textContent = item.text;
+    // TRÈS IMPORTANT : On copie l'URL EXACTE générée par AEM (Adieu la 404 !)
+    navItem.href = linkElement.href;
+    
+    // On cherche le texte explicatif dans la cellule (ex: "Edit Christophe - DA")
+    let parentCell = linkElement.closest('div');
+    let cleanText = parentCell ? parentCell.textContent.trim() : linkElement.textContent.trim();
 
-    // Petite sécurité : si on clique et que ça fait une 404, on affiche l'URL exacte demandée dans la console pour déboguer
-    navItem.addEventListener('click', (e) => {
-      console.log(`Navigation vers : ${navItem.href}`);
-    });
+    // Si le texte est une URL brute, on prend le texte du lien
+    if (cleanText.includes('http') || cleanText.length > 60) {
+      cleanText = linkElement.textContent.trim();
+    }
 
+    // --- NETTOYAGE CHIRURGICAL DU TEXTE ---
+    if (cleanText.toLowerCase().includes('edit') || cleanText.toLowerCase().includes('- da')) {
+      cleanText = cleanText
+        .replace(/edit/gi, '')
+        .replace(/-\s*da/gi, '')
+        .trim();
+    }
+
+    // Si c'est l'accueil ou le pendu, on garde son nom propre
+    if (!cleanText) {
+      cleanText = linkElement.textContent.trim();
+    }
+
+    // Première lettre en majuscule
+    navItem.textContent = cleanText.charAt(0).toUpperCase() + cleanText.slice(1);
     navLinksContainer.appendChild(navItem);
   });
 
+  // On remplace le tableau moche par notre barre blanche
   block.innerHTML = '';
   block.append(navLinksContainer);
 
+  // On pousse la barre au sommet de la page
   const mainLayout = document.querySelector('body');
   if (mainLayout) {
     const wrapper = block.closest('.navigation-wrapper') || block;
