@@ -1,7 +1,7 @@
-/* Style de la barre principale en BLANC - Intégration naturelle sans figer l'écran */
+/* Barre principale blanche en haut */
 .navigation-wrapper,
 .navigation-container {
-  position: relative !important; /* Libère complètement le scroll de la page */
+  position: relative !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -10,28 +10,28 @@
   min-height: 60px !important;
   height: auto !important;
   background-color: #ffffff !important; /* Fond Blanc */
-  border-bottom: 2px solid #e0e0e0 !important; /* Ligne de séparation propre */
+  border-bottom: 2px solid #e0e0e0 !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
-  margin: 0 0 30px 0 !important; /* Ajoute un espace de 30px SOUS la barre pour ne pas coller tes textes */
+  margin: 0 0 30px 0 !important;
   padding: 15px 20px !important;
   box-sizing: border-box !important;
   z-index: 100 !important;
 }
 
-/* Liste des liens alignés horizontalement */
+/* Alignement horizontal et anti-débordement */
 .nav-links-list {
   display: flex !important;
   flex-direction: row !important;
-  flex-wrap: wrap !important; /* Si l'écran est petit, les prénoms passent en dessous proprement */
+  flex-wrap: wrap !important;
   gap: 15px 25px !important;
   align-items: center !important;
   justify-content: center !important;
-  width: 100%;
+  width: 100% !important;
 }
 
-/* Style des liens (prénoms, pendu, accueil) */
+/* Liens forcés en NOIR */
 .nav-item-link {
-  color: #333333 !important; /* Texte sombre lisible sur fond blanc */
+  color: #000000 !important; /* TEXTE NOIR */
   text-decoration: none !important;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
   font-size: 16px !important;
@@ -45,12 +45,11 @@
 
 /* Effet au survol des liens */
 .nav-item-link:hover {
-  background-color: #ff9f1c !important; /* Ton orange dynamique */
-  color: #000000 !important;
+  background-color: #ff9f1c !important; /* Orange au survol */
+  color: #000000 !important; /* Reste noir sur l'orange */
 }
 
-/* On nettoie les anciennes marges forcées sur le body qui pouvaient bloquer AEM */
 body {
   padding-top: 0 !important;
-  overflow-y: auto !important; /* Force le navigateur à autoriser le scroll vertical */
+  overflow-y: auto !important; /* Libère le scroll de la page */
 }
