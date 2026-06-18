@@ -1,15 +1,19 @@
 export default function decorate(block) {
-  // 1. EXTRACTION DU CONTENU SÉCURISÉE
-  const fullHTML = block.innerHTML;
+  // 1. EXTRACTION DU CONTENU ET NETTOYAGE DES BALISES DU SÉPARATEUR
+  let fullHTML = block.innerHTML;
+
+  // Sécurité : on remplace les variantes possibles du séparateur (ex: <p>---</p>) par un '---' brut
+  fullHTML = fullHTML.replace(/<p[^>]*>\s*---\s*<\/p>/g, '---');
+  fullHTML = fullHTML.replace(/<div[^>]*>\s*---\s*<\/div>/g, '---');
+
   let falldownHTML = fullHTML;
   let riseupHTML = "<p>🌸 Bienvenue au printemps ! (Ajoutez --- dans votre document pour changer ce texte)</p>";
 
+  // Découpage propre entre Noël et ton texte Riseup
   if (fullHTML.includes('---')) {
     const parts = fullHTML.split('---');
     falldownHTML = parts[0];
     riseupHTML = parts[1];
-  } else {
-    riseupHTML = `<p>🌸 Surprise ! Le texte de Rise Up apparaît enfin à la place.</p>`;
   }
 
   // 2. RECONSTRUCTION
@@ -27,11 +31,9 @@ export default function decorate(block) {
   riseupContainer.style.transition = 'transform 1.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 1.8s';
   riseupContainer.style.display = 'none';
 
-  // Création du bouton classique (Le CSS s'occupe du reste)
   const actionButton = document.createElement('button');
   actionButton.textContent = 'Make it snow! 🎄❄️';
 
-  // Injection dans le bloc AEM
   block.append(falldownContainer, riseupContainer, actionButton);
 
   const winterAudio = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3');
