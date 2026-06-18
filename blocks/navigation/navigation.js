@@ -1,49 +1,43 @@
 export default function decorate(block) {
-  block.classList.add('navigation-container');
+  // On applique la classe globale pour la barre de navigation
+  block.classList.add('global-nav-bar');
 
-  // On récupère toutes les lignes du tableau du document
   const rows = Array.from(block.children);
   
-  // On crée un conteneur de grille pour les cartes
-  const gridContainer = document.createElement('div');
-  gridContainer.className = 'navigation-grid';
+  // Création du conteneur de liens horizontal
+  const navLinksContainer = document.createElement('nav');
+  navLinksContainer.className = 'nav-links-list';
 
   rows.forEach((row) => {
-    // Dans AEM, chaque ligne a généralement deux colonnes (Texte/Image et le Lien)
     const columns = Array.from(row.children);
     if (columns.length === 0) return;
 
-    // Extraction du contenu
-    const contentArea = columns[0];
+    // On cherche le lien dans la ligne
     const linkElement = row.querySelector('a');
+    if (!linkElement) return;
 
-    // On crée la carte de navigation
-    const card = document.createElement('div');
-    card.className = 'navigation-card';
+    // On crée un bouton de navigation épuré
+    const navItem = document.createElement('a');
+    navItem.className = 'nav-item-link';
+    navItem.href = linkElement.href;
+    
+    // On récupère uniquement le texte du titre (ex: "Accueil" ou "Jeu du Pendu")
+    // en enlevant les descriptions superflues pour que ça tienne dans une barre
+    const titleElement = columns[0].querySelector('h1, h2, h3, h4, p, strong');
+    navItem.textContent = titleElement ? titleElement.textContent.trim() : linkElement.textContent.trim();
 
-    // S'il y a un lien, on rend toute la carte cliquable
-    if (linkElement) {
-      const targetUrl = linkElement.href;
-      card.addEventListener('click', () => {
-        window.location.href = targetUrl;
-      });
-      card.style.cursor = 'pointer';
-    }
-
-    // On déplace le texte et les images à l'intérieur de la carte
-    // (en enlevant le lien brut pour éviter les doublons de clics)
-    if (linkElement) linkElement.remove();
-    card.innerHTML = contentArea.innerHTML;
-
-    // Si la carte contient une image, on lui ajoute une classe pour le style
-    if (card.querySelector('img')) {
-      card.classList.add('has-image');
-    }
-
-    gridContainer.appendChild(card);
+    navLinksContainer.appendChild(navItem);
   });
 
-  // On vide le bloc initial et on y injecte notre belle grille
+  // On vide le bloc et on injecte la liste de liens
   block.innerHTML = '';
-  block.append(gridContainer);
+  block.append(navLinksContainer);
+
+  // Sécurité AEM : On déplace physiquement le bloc tout en haut du <body> 
+  // pour être sûr qu'il soit au-dessus de tout le reste de la page
+  const mainLayout = document.querySelector('body');
+  if (mainLayout && !document.querySelector('.global-nav-bar-wrapper')) {
+    const wrapper = block.closest('.navigation-wrapper') || block;
+    mainLayout.insertBefore(wrapper, mainLayout.firstChild);
+  }
 }
