@@ -1,15 +1,13 @@
 export default function decorate(block) {
-  // On cache le bloc au départ
+  // Masqué au tout début
   block.style.opacity = '0';
-  block.style.transform = 'translateY(50px)';
+  block.style.transform = 'translateY(40px)';
   block.style.transition = 'transform 2s ease-out, opacity 2s';
 
-  // On attend le signal du bloc falldown
+  // Écouter le signal de fin du blizzard
   document.addEventListener('textHasFallen', () => {
-    // Dès que le texte est tombé, on fait monter ce bloc au bout de 2.5 secondes
-    setTimeout(() => {
-      block.style.opacity = '1';
-      block.style.transform = 'translateY(0)';
-    }, 2500);
+    // Le texte monte immédiatement à la place libre
+    block.style.opacity = '1';
+    block.style.transform = 'translateY(0)';
   });
 }
