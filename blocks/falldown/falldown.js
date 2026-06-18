@@ -1,5 +1,5 @@
 export default function decorate(block) {
-  // 1. EXTRACTION SÉCURISÉE DU CONTENU
+  // 1. EXTRACTION DU CONTENU SÉCURISÉE
   const fullHTML = block.innerHTML;
   let falldownHTML = fullHTML;
   let riseupHTML = "<p>🌸 Bienvenue au printemps ! (Ajoutez --- dans votre document pour changer ce texte)</p>";
@@ -12,17 +12,15 @@ export default function decorate(block) {
     riseupHTML = `<p>🌸 Surprise ! Le texte de Rise Up apparaît enfin à la place.</p>`;
   }
 
-  // 2. VIDAGE ET RECONSTRUCTION EN FORCE
+  // 2. NETTOYAGE ET STRUCTURATION
   block.innerHTML = '';
 
-  // Conteneur Falldown (Noël)
   const falldownContainer = document.createElement('div');
   falldownContainer.className = 'falldown-zone';
   falldownContainer.innerHTML = falldownHTML;
   falldownContainer.style.display = 'block';
   falldownContainer.style.transition = 'opacity 0.5s';
 
-  // Conteneur Riseup (Printemps)
   const riseupContainer = document.createElement('div');
   riseupContainer.className = 'riseup-zone';
   riseupContainer.innerHTML = riseupHTML;
@@ -31,35 +29,39 @@ export default function decorate(block) {
   riseupContainer.style.transition = 'transform 1.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 1.8s';
   riseupContainer.style.display = 'none';
 
-  // Le Bouton unique (Styles forcés en JS pour être sûr de le voir)
+  // 3. LE BOUTON FLOUTTANT (Impossible à cacher par AEM)
   const actionButton = document.createElement('button');
   actionButton.textContent = 'Make it snow! 🎄❄️';
-  actionButton.style.display = 'block';
-  actionButton.style.margin = '40px auto'; // Marge plus grande pour l'isoler des textes
+  
+  // Styles CSS fixes pour le forcer à flotter en bas de l'écran
+  actionButton.style.position = 'fixed';
+  actionButton.style.bottom = '30px';
+  actionButton.style.left = '50%';
+  actionButton.style.transform = 'translateX(-50%)';
+  actionButton.style.zIndex = '999999'; // Priorité absolue sur toute la page
   actionButton.style.padding = '16px 32px';
   actionButton.style.fontSize = '20px';
   actionButton.style.fontWeight = 'bold';
   actionButton.style.cursor = 'pointer';
-  actionButton.style.position = 'relative';
-  actionButton.style.zIndex = '10000'; // Priorité d'affichage maximale
   actionButton.style.backgroundColor = '#0072ff';
   actionButton.style.color = '#fff';
   actionButton.style.border = 'none';
   actionButton.style.borderRadius = '30px';
+  actionButton.style.boxShadow = '0 10px 25px rgba(0,0,0,0.3)';
   actionButton.style.transition = 'all 0.4s ease';
 
-  // On injecte d'abord le bouton, puis les zones de texte pour qu'AEM ne le masque pas
-  block.append(actionButton, falldownContainer, riseupContainer);
+  // Ajout au document
+  block.append(falldownContainer, riseupContainer);
+  document.body.appendChild(actionButton); // Injecté directement dans le body pour contourner AEM !
 
   const winterAudio = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3');
   const zombieAudio = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3');
 
-  let currentState = 0; // 0 = Noël, 1 = Zombie
+  let currentState = 0;
 
   actionButton.addEventListener('click', (e) => {
     e.preventDefault();
 
-    // --- MODE 1 : CLIC SUR NOËL (CHUTE) ---
     if (currentState === 0) {
       winterAudio.currentTime = 0;
       winterAudio.play().catch(err => console.log("Audio bloqué :", err));
@@ -71,4 +73,13 @@ export default function decorate(block) {
       const targets = elementsToDrop.length > 0 ? elementsToDrop : [falldownContainer];
 
       targets.forEach((el, index) => {
-        el.style.transition = 'transform 3
+        el.style.transition = 'transform 3.2s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 3.2s';
+        
+        const rect = el.getBoundingClientRect();
+        const targetY = window.innerHeight - rect.top - 40; 
+        const randomX = (Math.random() - 0.5) * 160;
+        const randomRotation = (Math.random() - 0.5) * 50;
+
+        setTimeout(() => {
+          el.style.transform = `translate(${randomX}px, ${targetY}px) rotate(${randomRotation}deg)`;
+          el.style.opacity
