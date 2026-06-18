@@ -1,14 +1,29 @@
 export default function decorate(block) {
-  block.classList.add('riseup'); // S'assure que la classe est bien là
+  block.classList.add('riseup');
+
+  // Injecter le CSS d'animation directement pour éviter tout problème de fichier externe
+  const style = document.createElement('style');
+  style.textContent = `
+    .riseup {
+      opacity: 0 !important;
+      transform: translateY(60px) !important;
+      transition: transform 2s cubic-bezier(0.25, 1, 0.5, 1), opacity 2s !important;
+    }
+    .riseup[data-status="active"] {
+      opacity: 1 !important;
+      transform: translateY(0) !important;
+    }
+    .riseup[data-status="zombie-out"] {
+      opacity: 0 !important;
+      transform: translateY(-100vh) !important;
+      transition: transform 2.5s ease-in, opacity 2s !important;
+    }
+  `;
+  document.head.appendChild(style);
 
   const contentContainer = document.createElement('div');
   contentContainer.className = 'riseup-content';
   contentContainer.innerHTML = block.innerHTML;
-
-  // Configuration initiale masquée en bas
-  block.style.opacity = '0';
-  block.style.transform = 'translateY(60px)';
-  block.style.transition = 'transform 2s cubic-bezier(0.25, 1, 0.5, 1), opacity 2s';
 
   const zombieButton = document.createElement('button');
   zombieButton.textContent = 'Rise again... 🧟‍♂️🎃';
@@ -26,22 +41,14 @@ export default function decorate(block) {
 
   const zombieAudio = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3');
 
-  // ON EXPOSE LA FONCTION DE MONTÉE POUR QUE FALLDOWN PUISSE L'ACTIVER DIRECTEMENT
-  block.triggerRise = () => {
-    block.style.opacity = '1';
-    block.style.transform = 'translateY(0)';
-  };
-
   zombieButton.addEventListener('click', (e) => {
     e.preventDefault();
 
     zombieAudio.currentTime = 0;
     zombieAudio.play().catch(err => console.log("Audio bloqué :", err));
 
-    // Le bloc riseup s'enfuit vers le haut de l'écran
-    block.style.transition = 'transform 2.5s ease-in, opacity 2s';
-    block.style.transform = 'translateY(-100vh)';
-    block.style.opacity = '0';
+    // Déclencher l'animation CSS de fuite vers le haut
+    block.setAttribute('data-status', 'zombie-out');
 
     setTimeout(() => {
       const fadeAudio = setInterval(() => {
@@ -57,10 +64,9 @@ export default function decorate(block) {
       // Réveiller Falldown
       document.dispatchEvent(new CustomEvent('zombieRiseAgain'));
       
-      // Reset discret du bloc en bas pour le coup d'après
+      // Reset de l'attribut pour le prochain coup
       setTimeout(() => {
-        block.style.transition = 'none';
-        block.style.transform = 'translateY(60px)';
+        block.removeAttribute('data-status');
       }, 500);
 
     }, 3000);
