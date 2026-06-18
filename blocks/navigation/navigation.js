@@ -1,11 +1,11 @@
 export default function decorate(block) {
   block.classList.add('global-nav-bar');
 
-  // AJUSTE LES CHEMINS CI-DESSOUS AVEC LES VRAIES ADRESSES DE TON SITE AEM
+  // Version simplifiée des liens (chemins en minuscules)
   const menuItems = [
-    { text: 'Accueil', url: '/' }, 
-    { text: 'Pendu', url: '/pendu' }, // Remplace par le vrai chemin vers ta page pendu
-    { text: 'Christophe', url: '/edit-christophe-da' }, // Exemple : si ta page est dans un sous-dossier, mets '/dossier/edit-christophe-da'
+    { text: 'Accueil', url: '/' },
+    { text: 'Pendu', url: '/pendu' },
+    { text: 'Christophe', url: '/edit-christophe-da' },
     { text: 'Duy', url: '/edit-duy-da' },
     { text: 'Martin', url: '/edit-martin-da' },
     { text: 'Quentin', url: '/edit-quentin-da' },
@@ -18,8 +18,16 @@ export default function decorate(block) {
   menuItems.forEach((item) => {
     const navItem = document.createElement('a');
     navItem.className = 'nav-item-link';
-    navItem.href = item.url;
+    
+    // Si tu es en local (localhost) ou sur hlx.page, on s'assure que le lien reste sur le même domaine
+    navItem.href = `${window.location.origin}${item.url}`;
     navItem.textContent = item.text;
+
+    // Petite sécurité : si on clique et que ça fait une 404, on affiche l'URL exacte demandée dans la console pour déboguer
+    navItem.addEventListener('click', (e) => {
+      console.log(`Navigation vers : ${navItem.href}`);
+    });
+
     navLinksContainer.appendChild(navItem);
   });
 
