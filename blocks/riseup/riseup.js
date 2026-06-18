@@ -1,12 +1,12 @@
 export default function decorate(block) {
-  // Masqué au tout début
+  // Masqué au départ
   block.style.opacity = '0';
-  block.style.transform = 'translateY(40px)';
-  block.style.transition = 'transform 2s ease-out, opacity 2s';
+  block.style.transform = 'translateY(60px)';
+  block.style.transition = 'transform 2s cubic-bezier(0.25, 1, 0.5, 1), opacity 2s';
 
-  // Écouter le signal de fin du blizzard
+  // Écouter le signal de fin de la tempête de neige
   document.addEventListener('textHasFallen', () => {
-    // Le texte monte immédiatement à la place libre
+    // Le texte monte à sa place
     block.style.opacity = '1';
     block.style.transform = 'translateY(0)';
   });
