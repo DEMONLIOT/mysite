@@ -1,33 +1,22 @@
-/* Style du bouton "Falldown" */
-.falldown-wrapper {
-  display: flex;
-  justify-content: center;
-  margin: 20px 0;
-}
-
+/* Style du bouton forcé via CSS */
 .falldown button {
-  background: linear-gradient(135deg, #00c6ff, #0072ff);
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  font-size: 18px;
-  font-weight: bold;
-  border-radius: 25px;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(0, 114, 255, 0.3);
-  transition: transform 0.2s, box-shadow 0.2s;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  margin: 40px auto !important;
+  padding: 16px 32px !important;
+  font-size: 20px !important;
+  font-weight: bold !important;
+  color: #ffffff !important;
+  background-color: #0072ff !important;
+  border: none !important;
+  border-radius: 30px !important;
+  cursor: pointer !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2) !important;
+  transition: all 0.4s ease !important;
 }
 
 .falldown button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 114, 255, 0.5);
-}
-
-/* Style appliqué aux lettres qui tombent */
-.falling-letter {
-  display: inline-block;
-  position: fixed;
-  z-index: 9999;
-  pointer-events: none; /* Empêche les lettres de bloquer les clics */
-  transition: transform 3s cubic-bezier(0.25, 1, 0.5, 1), opacity 3s;
+  transform: scale(1.05) !important;
+  background-color: #005cff !important;
 }
