@@ -1,11 +1,11 @@
 export default function decorate(block) {
   block.classList.add('global-nav-bar');
 
-  // Configuration manuelle et sécurisée de tes liens (Zéro dépendance au chargement d'AEM)
+  // AJUSTE LES CHEMINS CI-DESSOUS AVEC LES VRAIES ADRESSES DE TON SITE AEM
   const menuItems = [
-    { text: 'Accueil', url: '/' }, // Remplace par ton URL d'accueil si besoin
-    { text: 'Pendu', url: '/pendu' }, // Remplace par l'URL de ton jeu du pendu
-    { text: 'Christophe', url: '/edit-christophe-da' },
+    { text: 'Accueil', url: '/' }, 
+    { text: 'Pendu', url: '/pendu' }, // Remplace par le vrai chemin vers ta page pendu
+    { text: 'Christophe', url: '/edit-christophe-da' }, // Exemple : si ta page est dans un sous-dossier, mets '/dossier/edit-christophe-da'
     { text: 'Duy', url: '/edit-duy-da' },
     { text: 'Martin', url: '/edit-martin-da' },
     { text: 'Quentin', url: '/edit-quentin-da' },
@@ -15,7 +15,6 @@ export default function decorate(block) {
   const navLinksContainer = document.createElement('nav');
   navLinksContainer.className = 'nav-links-list';
 
-  // Génération immédiate des boutons de navigation
   menuItems.forEach((item) => {
     const navItem = document.createElement('a');
     navItem.className = 'nav-item-link';
@@ -24,11 +23,9 @@ export default function decorate(block) {
     navLinksContainer.appendChild(navItem);
   });
 
-  // Nettoyage et injection forcée
   block.innerHTML = '';
   block.append(navLinksContainer);
 
-  // Déplacement tout en haut du body pour éviter les conflits de blocs
   const mainLayout = document.querySelector('body');
   if (mainLayout) {
     const wrapper = block.closest('.navigation-wrapper') || block;
