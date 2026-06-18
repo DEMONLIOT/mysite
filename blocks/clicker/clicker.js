@@ -20,9 +20,15 @@ if (scoreSauvegarde) {
   clickButton.style.padding = "20px";
   clickButton.style.cursor = "pointer";
 
+  const upgradeButton = document.createElement('button');
+  upgradeButton.textContent = "🚀 Multiplicateur (+1 par clic) | Coût : 15";
+  upgradeButton.style.fontSize = "1.5rem";
+  upgradeButton.style.marginTop = "10px";
+  upgradeButton.style.cursor = "pointer";
+
   // --- 3. L'ASSEMBLAGE (On met tout dans la page web) ---
   block.innerHTML = '';
-  block.append(scoreDisplay, clickButton);
+  block.append(scoreDisplay, clickButton, upgradeButton);
 
   // --- 4. LA ZONE DE JEU (C'est là que tu codes !) ---
   clickButton.addEventListener('click', () => {
@@ -32,4 +38,13 @@ if (scoreSauvegarde) {
     // ÉTAPE 2 : Écris la ligne pour mettre à jour le texte affiché à l'écran
 localStorage.setItem('clickerScore', score);
   });
-}
+  upgradeButton.addEventListener('click', () => {
+    if (score>=15);
+    score=score-15
+    pointsParClic=pointsParClic+1
+    
+    scoreDisplay.textcontent=("Score:")+score
+    localStorage.setItem('clickerScore', score);
+}else{
+                                 alert("Pas assez de cookies ! 😢");
+  }  
