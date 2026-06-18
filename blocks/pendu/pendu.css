@@ -1,7 +1,9 @@
 .pendu-container {
-  max-width: 500px;
-  margin: 30px auto;
-  padding: 20px;
+  width: 100% !important; /* Force le bloc à prendre 100% de la largeur disponible */
+  max-width: 100% !important; /* Supprime l'ancienne limite de 500px */
+  box-sizing: border-box;
+  margin: 30px 0;
+  padding: 40px 20px; /* Un peu plus d'espace pour aérer le grand format */
   background: #1e1e24;
   color: #fff;
   border-radius: 15px;
@@ -13,35 +15,35 @@
 .pendu-container h2 {
   margin-top: 0;
   color: #ff9f1c;
-  font-size: 24px;
+  font-size: 28px; /* Un poil plus grand pour aller avec la largeur */
 }
 
 .pendu-ascii {
   background: #111;
-  padding: 15px;
+  padding: 20px;
   border-radius: 8px;
   display: inline-block;
-  font-size: 16px;
+  font-size: 18px; /* Dessin plus lisible */
   line-height: 1.2;
   color: #00ffcc;
   margin: 15px 0;
-  min-height: 110px;
-  min-width: 120px;
+  min-height: 130px;
+  min-width: 150px;
   text-align: left;
 }
 
 .pendu-word {
-  font-size: 28px;
-  letter-spacing: 5px;
-  margin: 20px 0;
+  font-size: 36px; /* Lettres plus grandes et plus visibles sur toute la largeur */
+  letter-spacing: 10px;
+  margin: 30px 0;
   font-weight: bold;
 }
 
 .pendu-message {
-  font-size: 18px;
+  font-size: 22px;
   font-weight: bold;
-  margin: 15px 0;
-  min-height: 25px;
+  margin: 20px 0;
+  min-height: 30px;
 }
 
 .pendu-message.win {
@@ -52,21 +54,23 @@
   color: #e71d36;
 }
 
+/* Le clavier s'adapte maintenant à la taille de l'écran */
 .pendu-keyboard {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 8px;
-  margin-top: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); /* S'étire intelligemment */
+  gap: 10px;
+  margin: 30px auto 0 auto;
+  max-width: 900px; /* On garde le clavier centré et agréable à cliquer sans que les touches soient géantes */
 }
 
 .letter-btn {
-  padding: 10px 5px;
-  font-size: 16px;
+  padding: 15px 10px; /* Boutons plus grands et plus simples à cibler */
+  font-size: 18px;
   font-weight: bold;
   background: #333;
   color: #fff;
   border: 1px solid #555;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -83,9 +87,9 @@
 }
 
 .pendu-reset {
-  margin: 20px auto 0 auto;
-  padding: 12px 25px;
-  font-size: 16px;
+  margin: 30px auto 0 auto;
+  padding: 14px 35px;
+  font-size: 18px;
   background: #ff9f1c;
   color: #000;
   border: none;
