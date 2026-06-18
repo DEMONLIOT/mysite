@@ -53,10 +53,10 @@ export default function decorate(block) {
         }
       }, 50);
 
-      // FORCE LE BLOC RISEUP À MONTER DIRECTEMENT
+      // ON ACTIVE LE BLOC RISEUP VIA LE HTML DIRECT
       const riseupBlock = document.querySelector('.riseup');
-      if (riseupBlock && typeof riseupBlock.triggerRise === 'function') {
-        riseupBlock.triggerRise();
+      if (riseupBlock) {
+        riseupBlock.setAttribute('data-status', 'active');
       }
 
       window.scrollTo({
