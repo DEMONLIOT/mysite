@@ -1,0 +1,19 @@
+/* Le conteneur du texte qui va monter */
+.riseup {
+  opacity: 0;
+  transform: translateY(100px); /* Caché vers le bas */
+  transition: transform 2.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 2s;
+  pointer-events: none;
+  margin-top: 40px;
+  text-align: center;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+}
+
+/* La classe magique déclenchée par le clic */
+.riseup.is-active {
+  opacity: 1;
+  transform: translateY(0); /* Reprend sa place normale */
+  pointer-events: auto;
+}
