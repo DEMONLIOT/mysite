@@ -48,5 +48,5 @@ localStorage.setItem('clickerScore', score);
 }else{
                                  alert("Pas assez de cookies ! 😢");
    } 
-};
+});
   }
