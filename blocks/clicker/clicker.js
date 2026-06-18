@@ -39,7 +39,7 @@ if (scoreSauvegarde) {
 localStorage.setItem('clickerScore', score);
   });
   upgradeButton.addEventListener('click', () => {
-    if (score>=15);
+    if (score>=15)
     score=score-15
     pointsParClic=pointsParClic+1
     
