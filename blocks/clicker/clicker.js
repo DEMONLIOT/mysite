@@ -5,8 +5,9 @@ export default function decorate(block) {
   const scoreSauvegarde=localStorage.getItem('clickerScore')
 if (scoreSauvegarde) {
   score=parseInt(scoreSauvegarde,10);
-  }else let score=0{
-  }
+  }else{ 
+  score=0
+}
 
   // --- 2. L'AFFICHAGE (Ce que le joueur voit à l'écran) ---
   const scoreDisplay = document.createElement('h2');
