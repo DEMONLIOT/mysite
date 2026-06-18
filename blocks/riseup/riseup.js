@@ -1,17 +1,18 @@
 export default function decorate(block) {
-  // On cache le contenu du bloc au chargement en lui donnant la structure CSS
+  // On applique la classe CSS pour masquer le bloc au départ
   block.classList.add('riseup');
 
-  // On écoute le clic sur TOUTE la page pour détecter quand le bouton Falldown est pressé
+  // Écouter le clic sur le bouton "Make it snow!"
   document.addEventListener('click', (event) => {
-    // Si l'élément cliqué est le bouton du bloc falldown
-    if (event.target.tagName === 'BUTTON' && event.target.textContent.includes('fall down')) {
+    // On vérifie que l'utilisateur a bien cliqué sur le bouton de Falldown
+    if (event.target.tagName === 'BUTTON' && event.target.textContent.includes('snow')) {
       
-      // On attend un tout petit peu (ex: 800ms) que le texte commence à tomber
+      // La chute des lettres dure 4 secondes (4000ms).
+      // On attend 3.8 secondes pour lancer la montée, juste au moment où les lettres touchent le sol !
       setTimeout(() => {
         block.classList.add('is-active');
-      }, 800);
-      
+      }, 3800); 
+
     }
   });
 }
