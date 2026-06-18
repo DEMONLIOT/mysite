@@ -1,89 +1,28 @@
-// Cette fonction va s'exécuter de force, même si le header/footer ont crashé la page
-function initFalldownForced(block) {
-  // Évite d'ajouter le bouton plusieurs fois
-  if (block.querySelector('button')) return;
-
+export default function decorate(block) {
   const button = document.createElement('button');
   button.textContent = 'Make it snow! 🎄❄️';
   
-  // Style du bouton injecté en direct pour être sûr qu'il soit beau
-  button.style.padding = '12px 24px';
-  button.style.fontSize = '18px';
-  button.style.backgroundColor = '#0072ff';
-  button.style.color = 'white';
-  button.style.border = 'none';
-  button.style.borderRadius = '25px';
-  button.style.cursor = 'pointer';
-
-  // Musique féerique de Noël
-  const audio = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3');
-  audio.loop = true;
-
   button.addEventListener('click', (e) => {
     e.preventDefault();
-    e.stopPropagation();
-    
-    audio.play().catch(err => console.log("Audio bloqué par le navigateur, réessaye de cliquer :", err));
 
-    // On cible le texte
-    const textNodes = document.querySelectorAll('p, h1, h2, h3, li, span');
+    // On cible tous les paragraphes de la page
+    const paragraphs = document.querySelectorAll('p');
 
-    textNodes.forEach((node) => {
-      if (node.closest('.falldown') || node.closest('.riseup') || node.tagName === 'BUTTON') return;
+    paragraphs.forEach((p) => {
+      // Sécurité pour éviter de faire tomber les blocs eux-mêmes
+      if (p.closest('.falldown') || p.closest('.riseup')) return;
 
-      const text = node.textContent;
-      if (!text.trim()) return;
-
-      const rect = node.getBoundingClientRect();
-      const originalLeft = rect.left + window.scrollX;
-      const originalTop = rect.top + window.scrollY;
-
-      node.style.height = `${rect.height}px`;
-      node.style.width = `${rect.width}px`;
-      node.innerHTML = '';
-
-      let currentLeftOffset = 0;
-      [...text].forEach((char) => {
-        const span = document.createElement('span');
-        span.textContent = char === ' ' ? '\u00A0' : char;
-
-        span.style.position = 'absolute';
-        span.style.left = `${originalLeft + currentLeftOffset}px`;
-        span.style.top = `${originalTop}px`;
-        span.style.display = 'inline-block';
-        span.style.zIndex = '99999';
-        span.style.pointerEvents = 'none';
-        span.style.transition = 'transform 4s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 4s';
-
-        document.body.appendChild(span);
-
-        currentLeftOffset += char === ' ' ? 8 : 11;
-
-        setTimeout(() => {
-          const randomX = (Math.random() - 0.5) * 250; 
-          const randomRotation = (Math.random() - 0.5) * 500; 
-          const targetY = window.innerHeight + window.scrollY - 50; 
-
-          span.style.transform = `translate(${randomX}px, ${targetY - originalTop}px) rotate(${randomRotation}deg)`;
-          span.style.opacity = '0.1'; 
-        }, 50);
-      });
+      // On force le paragraphe à descendre en bas de l'écran
+      p.style.transition = 'transform 3s ease-in, opacity 3s';
+      p.style.transform = 'translateY(800px) rotate(15deg)';
+      p.style.opacity = '0';
     });
+
+    // Déclencher un événement personnalisé sur la page pour prévenir le bloc Riseup
+    const event = new CustomEvent('textHasFallen');
+    document.dispatchEvent(event);
   });
 
   block.textContent = '';
   block.append(button);
 }
-
-// Décorateur standard AEM
-export default function decorate(block) {
-  initFalldownForced(block);
-}
-
-// SÉCURITÉ CRITIQUE : Si AEM a planté à cause du header, on force quand même le chargement du bouton au bout d'une seconde !
-setTimeout(() => {
-  const falldownBlock = document.querySelector('.falldown');
-  if (falldownBlock) {
-    initFalldownForced(falldownBlock);
-  }
-}, 1000);
