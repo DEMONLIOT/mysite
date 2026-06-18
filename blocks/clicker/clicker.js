@@ -39,12 +39,14 @@ if (scoreSauvegarde) {
 localStorage.setItem('clickerScore', score);
   });
   upgradeButton.addEventListener('click', () => {
-    if (score>=15)
+    if (score>=15){
     score=score-15
     pointsParClic=pointsParClic+1
     
-    scoreDisplay.textcontent=("Score:")+score
+    scoreDisplay.textContent=("Score:")+score
     localStorage.setItem('clickerScore', score);
 }else{
                                  alert("Pas assez de cookies ! 😢");
-  }  
+   } 
+};
+  }
