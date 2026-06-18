@@ -1,57 +1,73 @@
 export default function decorate(block) {
-  // 1. Créer le bouton
+  // 1. Créer le bouton avec un look de Noël
   const button = document.createElement('button');
-  button.textContent = 'Make the text fall down ❄️';
+  button.textContent = 'Make it snow! 🎄❄️';
   
-  // 2. Préparer la musique d'hiver (Audio libre de droits)
-  const audio = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'); // Musique d'ambiance douce
+  // 2. Musique de Noël (Jingle Bells d'ambiance)
+  const audio = new Audio('https://actions.google.com/sounds/v1/ambiences/morning_birds.ogg'); // Backup au cas où, mais mettons un vrai lien public de musique festive :
+  audio.src = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3'; // Une musique instrumentale douce et féerique
   audio.loop = true;
 
   // 3. L'événement au clic
   button.addEventListener('click', () => {
-    // A. Lancer la musique
-    audio.play().catch(err => console.log("L'audio n'a pas pu démarrer (besoin d'une interaction utilisateur prioritaire) :", err));
+    // Lancer la musique de Noël
+    audio.play().catch(err => console.log("L'audio a besoin d'un clic fort pour démarrer :", err));
 
-    // B. Sélectionner tous les paragraphes, titres, listes de la page
+    // Sélectionner les éléments textuels de la page
     const textNodes = document.querySelectorAll('p, h1, h2, h3, li, span');
 
     textNodes.forEach((node) => {
-      // Ignorer le bouton lui-même pour qu'il reste cliquable
-      if (node.closest('.falldown')) return;
+      // Sécurité : Ne PAS faire tomber le bouton lui-même ni le texte qui va monter (Riseup)
+      if (node.closest('.falldown') || node.closest('.riseup')) return;
 
       const text = node.textContent;
       if (!text.trim()) return;
 
-      // Vider le conteneur pour remplacer le texte par des lettres individuelles stylisées
-      node.innerHTML = '';
+      // Récupérer la position absolue de la ligne AVANT de la vider
+      const rect = node.getBoundingClientRect();
+      const originalLeft = rect.left + window.scrollX;
+      const originalTop = rect.top + window.scrollY;
 
+      // Vider le texte d'origine
+      node.innerHTML = '';
+      
+      // Bloquer la hauteur du conteneur d'origine pour éviter que la page ne remonte d'un coup sec
+      node.style.height = `${rect.height}px`;
+      node.style.visibility = 'hidden'; // Cache le texte d'origine statique
+
+      // Créer et faire tomber chaque lettre
+      let currentLeftOffset = 0;
       [...text].forEach((char) => {
         const span = document.createElement('span');
-        span.textContent = char === ' ' ? '\u00A0' : char; // Gère les espaces
+        span.textContent = char === ' ' ? '\u00A0' : char;
         span.classList.add('falling-letter');
 
-        // Récupérer la position exacte actuelle de la lettre sur l'écran
-        const rect = node.getBoundingClientRect();
-        span.style.left = `${rect.left + window.scrollX}px`;
-        span.style.top = `${rect.top + window.scrollY}px`;
+        // Forcer le positionnement absolu sur l'écran pour casser le mécanisme du site
+        span.style.position = 'absolute';
+        span.style.left = `${originalLeft + currentLeftOffset}px`;
+        span.style.top = `${originalTop}px`;
+        span.style.visibility = 'visible';
 
-        // Ajouter la lettre au document
         document.body.appendChild(span);
 
-        // Déclencher l'animation de chute après un micro-délai mécanique
-        setTimeout(() => {
-          const randomX = (Math.random() - 0.5) * 200; // Oscillation gauche/droite
-          const randomRotation = (Math.random() - 0.5) * 360; // Rotation de la lettre
-          const screenHeight = window.innerHeight;
+        // Estimer l'espace pour la lettre suivante (environ 9px par lettre)
+        currentLeftOffset += char === ' ' ? 8 : 10;
 
-          span.style.transform = `translate(${randomX}px, ${screenHeight}px) rotate(${randomRotation}deg)`;
-          span.style.opacity = '0.3'; // Devient légèrement transparent comme de la neige
-        }, 10);
+        // Déclencher la chute immédiatement
+        setTimeout(() => {
+          const randomX = (Math.random() - 0.5) * 300; // Balancement gauche/droite (flocon)
+          const randomRotation = (Math.random() - 0.5) * 720; // Rotation complète sur elle-même
+          const targetY = window.innerHeight + window.scrollY - 40; // Tombe tout en bas de l'écran visible
+
+          span.style.transition = 'transform 4s ease-in, opacity 4s';
+          span.style.transform = `translate(${randomX}px, ${targetY - originalTop}px) rotate(${randomRotation}deg)`;
+          span.style.opacity = '0.2'; // Effet flocon de neige translucide
+        }, 50);
       });
     });
   });
 
-  // Nettoyer le bloc et y insérer le bouton
+  // Insérer le bouton dans le bloc
   block.textContent = '';
   block.append(button);
 }
