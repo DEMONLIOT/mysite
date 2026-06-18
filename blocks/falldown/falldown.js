@@ -1,93 +1,72 @@
 export default function decorate(block) {
-  // 1. On garde tout le contenu d'origine (textes et images) bien visible au début
+  // 1. Conteneur initial visible avec textes et images
   const contentContainer = document.createElement('div');
   contentContainer.className = 'falldown-content';
   contentContainer.innerHTML = block.innerHTML;
 
-  // On extrait le texte brut pour l'animation de neige
-  const originalText = block.textContent.trim();
+  // On récupère les paragraphes et titres d'origine pour les faire tomber proprement
+  const originalParagraphs = block.querySelectorAll('p, h1, h2, h3, li');
 
-  // 2. On crée le bouton de Noël
+  // 2. Bouton de Noël
   const button = document.createElement('button');
   button.textContent = 'Make it snow! 🎄❄️';
   button.style.display = 'block';
   button.style.margin = '20px auto';
   
-  // On vide le bloc et on y remet le contenu d'origine + le bouton
   block.innerHTML = '';
   block.append(contentContainer, button);
 
-  // Musique de Noël (Jingle Bells instrumental)
   const audio = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3');
 
-  // 3. L'événement au clic
+  // 3. Clic sur le bouton
   button.addEventListener('click', (e) => {
     e.preventDefault();
 
-    // Lancer la musique
+    // Musique
     audio.currentTime = 0;
     audio.play().catch(err => console.log("Audio bloqué :", err));
 
-    // Récupérer la position du bloc avant de lancer l'animation
-    const rect = contentContainer.getBoundingClientRect();
-    const originalLeft = rect.left + window.scrollX;
-    const originalTop = rect.top + window.scrollY;
+    // Animation de chute sur chaque paragraphe entier (évite le bug des lettres)
+    originalParagraphs.forEach((el, index) => {
+      const rect = el.getBoundingClientRect();
+      const originalLeft = rect.left + window.scrollX;
+      const originalTop = rect.top + window.scrollY;
 
-    // On fait disparaître en douceur le contenu d'origine (y compris les images du bloc)
-    contentContainer.style.transition = 'opacity 0.5s ease-out';
-    contentContainer.style.opacity = '0';
+      // Création d'un clone volant pour l'animation
+      const clone = el.cloneNode(true);
+      clone.style.position = 'absolute';
+      clone.style.left = `${originalLeft}px`;
+      clone.style.top = `${originalTop}px`;
+      clone.style.width = `${rect.width}px`;
+      clone.style.margin = '0';
+      clone.style.zIndex = '99999';
+      clone.style.pointerEvents = 'none';
+      clone.style.transition = 'transform 3.5s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 3.5s';
 
-    // Cacher aussi le bouton
-    button.style.transition = 'opacity 0.5s ease-out';
-    button.style.opacity = '0';
+      document.body.appendChild(clone);
 
-    let currentLeftOffset = 0;
-    let currentTopOffset = 0;
-
-    // 4. Générer l'effet de neige textuelle à partir du texte d'origine
-    [...originalText].forEach((char, index) => {
-      if (!char.trim() && char !== ' ') return;
-
-      const span = document.createElement('span');
-      span.textContent = char === ' ' ? '\u00A0' : char;
-
-      // Position de départ absolue sur l'écran
-      span.style.position = 'absolute';
-      span.style.left = `${originalLeft + currentLeftOffset}px`;
-      span.style.top = `${originalTop + currentTopOffset}px`;
-      span.style.display = 'inline-block';
-      span.style.zIndex = '99999';
-      span.style.pointerEvents = 'none';
-      span.style.fontSize = '20px';
-      span.style.fontFamily = 'inherit';
-      span.style.fontWeight = 'bold';
-      span.style.transition = 'transform 4s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 4s';
-
-      document.body.appendChild(span);
-
-      // Simuler un retour à la ligne basique pour les longs textes
-      currentLeftOffset += char === ' ' ? 8 : 12;
-      if (currentLeftOffset > rect.width - 20) {
-        currentLeftOffset = 0;
-        currentTopOffset += 24;
-      }
-
-      // Lancer la chute comme des flocons de neige
+      // Lancer la chute du bloc de texte
       setTimeout(() => {
-        const randomX = (Math.random() - 0.5) * 200;
-        const randomRotation = (Math.random() - 0.5) * 720;
-        const targetY = window.innerHeight + window.scrollY - 40;
+        const randomX = (Math.random() - 0.5) * 150;
+        const randomRotation = (Math.random() - 0.5) * 45; // Rotation plus douce pour les blocs de texte
+        const targetY = window.innerHeight + window.scrollY - 60;
 
-        span.style.transform = `translate(${randomX}px, ${targetY - (originalTop + currentTopOffset)}px) rotate(${randomRotation}deg)`;
-        span.style.opacity = '0'; // Devient invisible à la fin
-      }, 50);
+        clone.style.transform = `translate(${randomX}px, ${targetY - originalTop}px) rotate(${randomRotation}deg)`;
+        clone.style.opacity = '0';
+      }, 50 + (index * 100)); // Léger décalage pour un effet cascade
 
-      // Nettoyer l'élément span après la chute
-      setTimeout(() => { span.remove(); }, 4000);
+      setTimeout(() => { clone.remove(); }, 3500);
     });
 
-    // 5. Arrêter la musique et déclencher Riseup après 4 secondes
+    // Masquer le contenu fixe d'origine et le bouton
+    contentContainer.style.transition = 'opacity 0.4s';
+    contentContainer.style.opacity = '0';
+    button.style.transition = 'opacity 0.4s';
+    button.style.opacity = '0';
+
+    // 4. Fin de l'animation (au bout de 3,5 secondes)
     setTimeout(() => {
+      // Couper la musique proprement
       const fadeAudio = setInterval(() => {
         if (audio.volume > 0.1) {
           audio.volume -= 0.1;
@@ -98,12 +77,19 @@ export default function decorate(block) {
         }
       }, 50);
 
-      // Envoyer le signal à Riseup
+      // Déclencher le bloc Riseup
       document.dispatchEvent(new CustomEvent('textHasFallen'));
       
-      // Supprimer définitivement les conteneurs Falldown masqués
+      // Nettoyage
       contentContainer.remove();
       button.remove();
-    }, 4000);
+
+      // RETOUR EN HAUT DE LA PAGE : Scroll fluide vers le haut (top: 0)
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+
+    }, 3500);
   });
 }
