@@ -1,0 +1,59 @@
+.navigation-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+/* Grille responsive : s'adapte automatique selon la taille de l'écran */
+.navigation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+}
+
+/* Style de chaque carte de navigation */
+.navigation-card {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Effet au survol de la carte */
+.navigation-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
+  border-color: #0072ff;
+}
+
+/* Gestion des titres dans les cartes */
+.navigation-card h2, 
+.navigation-card h3 {
+  margin-top: 0;
+  color: #222;
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+/* Gestion du texte descriptif */
+.navigation-card p {
+  color: #666;
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0;
+  flex-grow: 1; /* Pousse le contenu pour que toutes les cartes aient la même hauteur */
+}
+
+/* Si tu ajoutes des images/icônes dans ton tableau */
+.navigation-card img {
+  max-width: 60px;
+  height: auto;
+  margin-bottom: 15px;
+  display: block;
+}
