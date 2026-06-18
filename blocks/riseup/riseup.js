@@ -1,18 +1,15 @@
 export default function decorate(block) {
-  // On applique la classe CSS pour masquer le bloc au départ
-  block.classList.add('riseup');
+  // On cache le bloc au départ
+  block.style.opacity = '0';
+  block.style.transform = 'translateY(50px)';
+  block.style.transition = 'transform 2s ease-out, opacity 2s';
 
-  // Écouter le clic sur le bouton "Make it snow!"
-  document.addEventListener('click', (event) => {
-    // On vérifie que l'utilisateur a bien cliqué sur le bouton de Falldown
-    if (event.target.tagName === 'BUTTON' && event.target.textContent.includes('snow')) {
-      
-      // La chute des lettres dure 4 secondes (4000ms).
-      // On attend 3.8 secondes pour lancer la montée, juste au moment où les lettres touchent le sol !
-      setTimeout(() => {
-        block.classList.add('is-active');
-      }, 3800); 
-
-    }
+  // On attend le signal du bloc falldown
+  document.addEventListener('textHasFallen', () => {
+    // Dès que le texte est tombé, on fait monter ce bloc au bout de 2.5 secondes
+    setTimeout(() => {
+      block.style.opacity = '1';
+      block.style.transform = 'translateY(0)';
+    }, 2500);
   });
 }
