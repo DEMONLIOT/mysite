@@ -12,14 +12,12 @@ export default function decorate(block) {
     riseupHTML = `<p>🌸 Surprise ! Le texte de Rise Up apparaît enfin à la place.</p>`;
   }
 
-  // 2. NETTOYAGE ET STRUCTURATION
+  // 2. RECONSTRUCTION
   block.innerHTML = '';
 
   const falldownContainer = document.createElement('div');
   falldownContainer.className = 'falldown-zone';
   falldownContainer.innerHTML = falldownHTML;
-  falldownContainer.style.display = 'block';
-  falldownContainer.style.transition = 'opacity 0.5s';
 
   const riseupContainer = document.createElement('div');
   riseupContainer.className = 'riseup-zone';
@@ -29,30 +27,12 @@ export default function decorate(block) {
   riseupContainer.style.transition = 'transform 1.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 1.8s';
   riseupContainer.style.display = 'none';
 
-  // 3. LE BOUTON FLOUTTANT (Impossible à cacher par AEM)
+  // Création du bouton classique (Le CSS s'occupe du reste)
   const actionButton = document.createElement('button');
   actionButton.textContent = 'Make it snow! 🎄❄️';
-  
-  // Styles CSS fixes pour le forcer à flotter en bas de l'écran
-  actionButton.style.position = 'fixed';
-  actionButton.style.bottom = '30px';
-  actionButton.style.left = '50%';
-  actionButton.style.transform = 'translateX(-50%)';
-  actionButton.style.zIndex = '999999'; // Priorité absolue sur toute la page
-  actionButton.style.padding = '16px 32px';
-  actionButton.style.fontSize = '20px';
-  actionButton.style.fontWeight = 'bold';
-  actionButton.style.cursor = 'pointer';
-  actionButton.style.backgroundColor = '#0072ff';
-  actionButton.style.color = '#fff';
-  actionButton.style.border = 'none';
-  actionButton.style.borderRadius = '30px';
-  actionButton.style.boxShadow = '0 10px 25px rgba(0,0,0,0.3)';
-  actionButton.style.transition = 'all 0.4s ease';
 
-  // Ajout au document
-  block.append(falldownContainer, riseupContainer);
-  document.body.appendChild(actionButton); // Injecté directement dans le body pour contourner AEM !
+  // Injection dans le bloc AEM
+  block.append(falldownContainer, riseupContainer, actionButton);
 
   const winterAudio = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3');
   const zombieAudio = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3');
@@ -66,8 +46,8 @@ export default function decorate(block) {
       winterAudio.currentTime = 0;
       winterAudio.play().catch(err => console.log("Audio bloqué :", err));
 
-      actionButton.style.opacity = '0';
-      actionButton.style.pointerEvents = 'none';
+      actionButton.style.setProperty('opacity', '0', 'important');
+      actionButton.style.setProperty('pointer-events', 'none', 'important');
 
       const elementsToDrop = Array.from(falldownContainer.querySelectorAll('p, h1, h2, h3, li, img, span, strong, em'));
       const targets = elementsToDrop.length > 0 ? elementsToDrop : [falldownContainer];
@@ -82,4 +62,69 @@ export default function decorate(block) {
 
         setTimeout(() => {
           el.style.transform = `translate(${randomX}px, ${targetY}px) rotate(${randomRotation}deg)`;
-          el.style.opacity
+          el.style.opacity = '0';
+        }, index * 40);
+      });
+
+      setTimeout(() => {
+        winterAudio.pause();
+
+        falldownContainer.style.display = 'none';
+        riseupContainer.style.display = 'block';
+        
+        setTimeout(() => {
+          riseupContainer.style.opacity = '1';
+          riseupContainer.style.transform = 'translateY(0)';
+          
+          actionButton.textContent = 'Rise again... 🧟‍♂️🎃';
+          actionButton.style.setProperty('background-color', '#3a5f0b', 'important');
+          actionButton.style.setProperty('opacity', '1', 'important');
+          actionButton.style.setProperty('pointer-events', 'auto', 'important');
+          
+          currentState = 1;
+        }, 50);
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 3200);
+
+    } else if (currentState === 1) {
+      zombieAudio.currentTime = 0;
+      zombieAudio.play().catch(err => console.log("Audio bloqué :", err));
+
+      riseupContainer.style.transition = 'transform 2.2s ease-in, opacity 1.8s';
+      riseupContainer.style.transform = 'translateY(-100vh)';
+      riseupContainer.style.opacity = '0';
+      
+      actionButton.style.setProperty('opacity', '0', 'important');
+      actionButton.style.setProperty('pointer-events', 'none', 'important');
+
+      setTimeout(() => {
+        zombieAudio.pause();
+
+        const elementsToDrop = Array.from(falldownContainer.querySelectorAll('p, h1, h2, h3, li, img, span, strong, em'));
+        const targets = elementsToDrop.length > 0 ? elementsToDrop : [falldownContainer];
+        
+        targets.forEach((el) => {
+          el.style.transition = 'none';
+          el.style.transform = 'translate(0, 0) rotate(0deg)';
+          el.style.opacity = '1';
+        });
+
+        riseupContainer.style.display = 'none';
+        riseupContainer.style.transform = 'translateY(80px)';
+        
+        falldownContainer.style.display = 'block';
+        falldownContainer.style.opacity = '1';
+
+        actionButton.textContent = 'Make it snow! 🎄❄️';
+        actionButton.style.setProperty('background-color', '#0072ff', 'important');
+        actionButton.style.setProperty('opacity', '1', 'important');
+        actionButton.style.setProperty('pointer-events', 'auto', 'important');
+
+        currentState = 0;
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 2500);
+    }
+  });
+}
