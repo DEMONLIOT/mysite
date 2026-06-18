@@ -1,0 +1,101 @@
+.pendu-container {
+  max-width: 500px;
+  margin: 30px auto;
+  padding: 20px;
+  background: #1e1e24;
+  color: #fff;
+  border-radius: 15px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.pendu-container h2 {
+  margin-top: 0;
+  color: #ff9f1c;
+  font-size: 24px;
+}
+
+.pendu-ascii {
+  background: #111;
+  padding: 15px;
+  border-radius: 8px;
+  display: inline-block;
+  font-size: 16px;
+  line-height: 1.2;
+  color: #00ffcc;
+  margin: 15px 0;
+  min-height: 110px;
+  min-width: 120px;
+  text-align: left;
+}
+
+.pendu-word {
+  font-size: 28px;
+  letter-spacing: 5px;
+  margin: 20px 0;
+  font-weight: bold;
+}
+
+.pendu-message {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 15px 0;
+  min-height: 25px;
+}
+
+.pendu-message.win {
+  color: #2ec4b6;
+}
+
+.pendu-message.lose {
+  color: #e71d36;
+}
+
+.pendu-keyboard {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.letter-btn {
+  padding: 10px 5px;
+  font-size: 16px;
+  font-weight: bold;
+  background: #333;
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.letter-btn:hover:not(:disabled) {
+  background: #ff9f1c;
+  color: #000;
+  border-color: #ff9f1c;
+}
+
+.letter-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pendu-reset {
+  margin: 20px auto 0 auto;
+  padding: 12px 25px;
+  font-size: 16px;
+  background: #ff9f1c;
+  color: #000;
+  border: none;
+  border-radius: 25px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 5px 15px rgba(255,159,28,0.3);
+  transition: transform 0.2s;
+}
+
+.pendu-reset:hover {
+  transform: scale(1.05);
+}
