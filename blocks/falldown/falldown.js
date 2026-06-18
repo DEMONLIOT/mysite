@@ -16,7 +16,6 @@ export default function decorate(block) {
   const audio = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3');
   const itemsToAnimate = contentContainer.querySelectorAll('p, h1, h2, h3, li, img');
 
-  // Fonction qui lance la chute
   button.addEventListener('click', (e) => {
     e.preventDefault();
 
@@ -42,6 +41,7 @@ export default function decorate(block) {
       }, index * 150);
     });
 
+    // Fin de la tempête (3,5 secondes)
     setTimeout(() => {
       const fadeAudio = setInterval(() => {
         if (audio.volume > 0.1) {
@@ -53,7 +53,11 @@ export default function decorate(block) {
         }
       }, 50);
 
-      document.dispatchEvent(new CustomEvent('textHasFallen'));
+      // FORCE LE BLOC RISEUP À MONTER DIRECTEMENT
+      const riseupBlock = document.querySelector('.riseup');
+      if (riseupBlock && typeof riseupBlock.triggerRise === 'function') {
+        riseupBlock.triggerRise();
+      }
 
       window.scrollTo({
         top: 0,
@@ -63,21 +67,18 @@ export default function decorate(block) {
     }, 3500);
   });
 
-  // RESET / RÉSURRECTION : Quand on clique sur "Rise again"
+  // Reçu quand on clique sur "Rise again"
   document.addEventListener('zombieRiseAgain', () => {
-    // On remet toutes les lignes de texte à leur place d'origine instantanément
     itemsToAnimate.forEach((el) => {
       el.style.transition = 'none';
       el.style.transform = 'translate(0, 0) rotate(0deg)';
       el.style.opacity = '1';
     });
 
-    // On fait réapparaître le bouton de Noël
     button.style.transition = 'opacity 1s';
     button.style.opacity = '1';
     button.style.pointerEvents = 'auto';
 
-    // On ramène doucement l'utilisateur en haut si jamais il avait bougé
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
