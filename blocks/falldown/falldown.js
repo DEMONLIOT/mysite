@@ -1,17 +1,16 @@
 export default function decorate(block) {
-  // 1. Conteneur initial visible avec textes et images
+  // 1. On isole le contenu (textes, images) dans un conteneur dédié
   const contentContainer = document.createElement('div');
   contentContainer.className = 'falldown-content';
   contentContainer.innerHTML = block.innerHTML;
 
-  // On récupère les paragraphes et titres d'origine pour les faire tomber proprement
-  const originalParagraphs = block.querySelectorAll('p, h1, h2, h3, li');
-
-  // 2. Bouton de Noël
+  // 2. On crée le bouton de Noël
   const button = document.createElement('button');
   button.textContent = 'Make it snow! 🎄❄️';
   button.style.display = 'block';
   button.style.margin = '20px auto';
+  button.style.position = 'relative';
+  button.style.zIndex = '1000';
   
   block.innerHTML = '';
   block.append(contentContainer, button);
@@ -22,51 +21,38 @@ export default function decorate(block) {
   button.addEventListener('click', (e) => {
     e.preventDefault();
 
-    // Musique
+    // Lancer la musique
     audio.currentTime = 0;
     audio.play().catch(err => console.log("Audio bloqué :", err));
 
-    // Animation de chute sur chaque paragraphe entier (évite le bug des lettres)
-    originalParagraphs.forEach((el, index) => {
-      const rect = el.getBoundingClientRect();
-      const originalLeft = rect.left + window.scrollX;
-      const originalTop = rect.top + window.scrollY;
-
-      // Création d'un clone volant pour l'animation
-      const clone = el.cloneNode(true);
-      clone.style.position = 'absolute';
-      clone.style.left = `${originalLeft}px`;
-      clone.style.top = `${originalTop}px`;
-      clone.style.width = `${rect.width}px`;
-      clone.style.margin = '0';
-      clone.style.zIndex = '99999';
-      clone.style.pointerEvents = 'none';
-      clone.style.transition = 'transform 3.5s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 3.5s';
-
-      document.body.appendChild(clone);
-
-      // Lancer la chute du bloc de texte
-      setTimeout(() => {
-        const randomX = (Math.random() - 0.5) * 150;
-        const randomRotation = (Math.random() - 0.5) * 45; // Rotation plus douce pour les blocs de texte
-        const targetY = window.innerHeight + window.scrollY - 60;
-
-        clone.style.transform = `translate(${randomX}px, ${targetY - originalTop}px) rotate(${randomRotation}deg)`;
-        clone.style.opacity = '0';
-      }, 50 + (index * 100)); // Léger décalage pour un effet cascade
-
-      setTimeout(() => { clone.remove(); }, 3500);
-    });
-
-    // Masquer le contenu fixe d'origine et le bouton
-    contentContainer.style.transition = 'opacity 0.4s';
-    contentContainer.style.opacity = '0';
+    // Cacher le bouton pour qu'il ne gêne pas
     button.style.transition = 'opacity 0.4s';
     button.style.opacity = '0';
 
-    // 4. Fin de l'animation (au bout de 3,5 secondes)
+    // Sélectionner tous les éléments textuels directs à l'intérieur du bloc
+    const itemsToAnimate = contentContainer.querySelectorAll('p, h1, h2, h3, li, img');
+
+    itemsToAnimate.forEach((el, index) => {
+      // On force le style pour permettre l'animation sans changer sa position de départ
+      el.style.display = 'block';
+      el.style.transition = 'transform 3.5s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 3.5s';
+      
+      // Calcul de la distance jusqu'au bas de l'écran (sans toucher au haut de la page)
+      const rect = el.getBoundingClientRect();
+      const targetY = window.innerHeight - rect.top - 40; 
+      const randomX = (Math.random() - 0.5) * 120;
+      const randomRotation = (Math.random() - 0.5) * 30;
+
+      // Déclenchement de la chute en cascade
+      setTimeout(() => {
+        el.style.transform = `translate(${randomX}px, ${targetY}px) rotate(${randomRotation}deg)`;
+        el.style.opacity = '0';
+      }, index * 150); // Effet cascade fluide
+    });
+
+    // 4. Fin de la tempête (3,5 secondes plus tard)
     setTimeout(() => {
-      // Couper la musique proprement
+      // Extinction propre de la musique
       const fadeAudio = setInterval(() => {
         if (audio.volume > 0.1) {
           audio.volume -= 0.1;
@@ -77,14 +63,13 @@ export default function decorate(block) {
         }
       }, 50);
 
-      // Déclencher le bloc Riseup
+      // On prévient le bloc Riseup qu'il peut apparaître
       document.dispatchEvent(new CustomEvent('textHasFallen'));
       
-      // Nettoyage
-      contentContainer.remove();
-      button.remove();
+      // Nettoyage complet du bloc Falldown devenu invisible
+      block.remove();
 
-      // RETOUR EN HAUT DE LA PAGE : Scroll fluide vers le haut (top: 0)
+      // ACTION : C'est uniquement l'utilisateur qui remonte en haut de la page
       window.scrollTo({
         top: 0,
         behavior: 'smooth'
