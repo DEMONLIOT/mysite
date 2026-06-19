@@ -1,1 +1,35 @@
+.nav-menu {
+  display: flex !important;
+  list-style: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background-color: #111 !important;
+}
 
+.nav-item {
+  position: relative !important;
+  padding: 15px 20px !important;
+}
+
+.nav-item a, .dropdown-toggle {
+  color: #fff !important;
+  text-decoration: none !important;
+}
+
+.dropdown-menu {
+  display: none !important;
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  background-color: #222 !important;
+  list-style: none !important;
+  padding: 10px 0 !important;
+  margin: 0 !important;
+  min-width: 150px !important;
+  z-index: 9999 !important;
+}
+
+/* Quand le JS ajoute la classe is-open, le CSS affiche le sous-menu */
+.nav-item.dropdown.is-open .dropdown-menu {
+  display: block !important;
+}
