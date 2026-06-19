@@ -161,16 +161,17 @@ async function loadEager(doc) {
 async function loadLazy(doc) {
   const headerElement = doc.querySelector('header');
   if (headerElement) {
-    // 1. On charge d'abord le bloc via AEM natif pour récupérer le contenu HTML du Drive
     await loadHeader(headerElement);
     
-    // 2. On intercepte TOUT de suite pour appliquer notre tri sans attendre le cache de header.js
     const headerBlock = headerElement.querySelector('.header');
     if (headerBlock) {
+      // Extraction large de tous les liens pour parer à la structure d'AEM
       const allLinks = [...headerBlock.querySelectorAll('a')];
+      
       if (allLinks.length > 0) {
-        // Nettoyage visuel de la boîte
         headerBlock.textContent = '';
+        
+        // Fixer le style de la barre principale en haut
         headerBlock.style.position = 'fixed';
         headerBlock.style.top = '0';
         headerBlock.style.left = '0';
@@ -187,101 +188,50 @@ async function loadLazy(doc) {
         navContainer.style.padding = '15px 30px';
         navContainer.style.fontFamily = 'sans-serif';
 
-        const accueilLinks = [];
-        const jeuxDropdownLinks = [];
-        const otherMainLinks = [];
+        // Tableaux de dispatching basés exactement sur TES images
+        const menuStructure = {
+          accueil: null,
+          jeux: [],
+          interviews: [],
+          adobe: [],
+          decouvertes: []
+        };
 
         allLinks.forEach((link) => {
           const text = link.textContent.toLowerCase().trim();
-          if (text.includes('acc') || text === 'home') {
-            accueilLinks.push(link);
-          } else if (
-            text.includes('playstation') || text.includes('xbox') || 
-            text.includes('nintendo') || text.includes('switch') || 
-            text.includes('clicker') || text.includes('game') || 
-            link.closest('ul ul')
-          ) {
-            jeuxDropdownLinks.push(link);
-          } else if (!text.includes('jeux')) {
-            otherMainLinks.push(link);
+          const href = link.getAttribute('href') || '';
+
+          if (text === 'accueil' || text === 'home') {
+            menuStructure.accueil = link;
+          } else if (text.includes('clicker') || text.includes('pendu') || text.includes('blague')) {
+            menuStructure.jeux.push(link);
+          } else if (['alexandre', 'christophe', 'duy', 'martin', 'quentin', 'vincent', 'alvaro'].some(name => text.includes(name))) {
+            menuStructure.interviews.push(link);
+          } else if (text.includes('basel') || (text === 'adobe' && href.includes('adobe')) || text.includes('manager')) {
+            menuStructure.adobe.push(link);
+          } else if (/^j[1-5]$/.test(text)) {
+            menuStructure.decouvertes.push(link);
           }
         });
 
-        // A. Injecter Accueil
-        if (accueilLinks.length > 0) {
-          createLink(accueilLinks[0], navContainer);
-        } else if (allLinks[0] && !allLinks[0].textContent.toLowerCase().includes('jeux')) {
-          createLink(allLinks[0], navContainer);
+        // 1. Injection Accueil
+        if (menuStructure.accueil) {
+          createMainLink(menuStructure.accueil, navContainer);
+        } else {
+          // Fallback au cas où Accueil n'a pas de lien dans le doc
+          const accBtn = document.createElement('a');
+          accBtn.href = '/';
+          accBtn.textContent = 'Accueil';
+          createMainLink(accBtn, navContainer);
         }
 
-        // B. Injecter le Dropdown Jeux
-        const dropdownDiv = document.createElement('div');
-        dropdownDiv.style.position = 'relative';
-        dropdownDiv.style.padding = '0 20px';
-        dropdownDiv.style.display = 'inline-block';
+        // 2. Injection des Dropdowns
+        createDropdown('Jeux', menuStructure.jeux, navContainer);
+        createDropdown('Interviews', menuStructure.interviews, navContainer);
+        createDropdown('Adobe', menuStructure.adobe, navContainer);
+        createDropdown('Découvertes', menuStructure.decouvertes, navContainer);
 
-        const trigger = document.createElement('span');
-        trigger.style.cursor = 'pointer';
-        trigger.style.color = '#222222';
-        trigger.style.fontWeight = '600';
-        trigger.style.fontSize = '16px';
-        trigger.textContent = "Jeux ▼";
-        dropdownDiv.appendChild(trigger);
-
-        const dropdownUl = document.createElement('ul');
-        dropdownUl.style.display = 'none';
-        dropdownUl.style.position = 'absolute';
-        dropdownUl.style.top = '100%';
-        dropdownUl.style.left = '0';
-        dropdownUl.style.backgroundColor = '#ffffff';
-        dropdownUl.style.listStyle = 'none';
-        dropdownUl.style.padding = '10px 0';
-        dropdownUl.style.margin = '10px 0 0 0';
-        dropdownUl.style.minWidth = '180px';
-        dropdownUl.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-        dropdownUl.style.border = '1px solid #e0e0e0';
-        dropdownUl.style.zIndex = '10001';
-
-        jeuxDropdownLinks.forEach((link) => {
-          const subLi = document.createElement('li');
-          subLi.style.padding = '8px 20px';
-          const newSubLink = link.cloneNode(true);
-          newSubLink.style.color = '#444444';
-          newSubLink.style.textDecoration = 'none';
-          newSubLink.style.fontSize = '14px';
-          newSubLink.style.display = 'block';
-          subLi.appendChild(newSubLink);
-          dropdownUl.appendChild(subLi);
-        });
-
-        dropdownDiv.appendChild(dropdownUl);
-        dropdownDiv.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const isOpen = dropdownUl.style.display === 'block';
-          dropdownUl.style.display = isOpen ? 'none' : 'block';
-        });
-        navContainer.appendChild(dropdownDiv);
-
-        // C. Injecter Interviews et le reste
-        otherMainLinks.forEach((link) => {
-          createLink(link, navContainer);
-        });
-
-        document.addEventListener('click', () => { dropdownUl.style.display = 'none'; });
         headerBlock.appendChild(navContainer);
-
-        function createLink(el, container) {
-          const d = document.createElement('div');
-          d.style.padding = '0 20px';
-          d.style.display = 'inline-block';
-          const n = el.cloneNode(true);
-          n.style.color = '#222222';
-          n.style.textDecoration = 'none';
-          n.style.fontWeight = '600';
-          n.style.fontSize = '16px';
-          d.appendChild(n);
-          container.appendChild(d);
-        }
       }
     }
   }
@@ -296,6 +246,71 @@ async function loadLazy(doc) {
   loadFooter(doc.querySelector('footer'));
   loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
   loadFonts();
+}
+
+// Fonction outil pour créer un bouton principal simple
+function createMainLink(el, container) {
+  const d = document.createElement('div');
+  d.style.padding = '0 20px';
+  const n = el.cloneNode(true);
+  n.style.color = '#222222';
+  n.style.textDecoration = 'none';
+  n.style.fontWeight = '600';
+  n.style.fontSize = '16px';
+  d.appendChild(n);
+  container.appendChild(d);
+}
+
+// Fonction outil pour générer un menu déroulant complet
+function createDropdown(title, linksArray, container) {
+  if (linksArray.length === 0) return;
+
+  const dropdownDiv = document.createElement('div');
+  dropdownDiv.style.position = 'relative';
+  dropdownDiv.style.padding = '0 20px';
+  dropdownDiv.style.display = 'inline-block';
+
+  const trigger = document.createElement('span');
+  trigger.style.cursor = 'pointer';
+  trigger.style.color = '#222222';
+  trigger.style.fontWeight = '600';
+  trigger.style.fontSize = '16px';
+  trigger.textContent = `${title} ▼`;
+  dropdownDiv.appendChild(trigger);
+
+  const dropdownUl = document.createElement('ul');
+  dropdownUl.style.display = 'none';
+  dropdownUl.style.position = 'absolute';
+  dropdownUl.style.top = '100%';
+  dropdownUl.style.left = '0';
+  dropdownUl.style.backgroundColor = '#ffffff';
+  dropdownUl.style.listStyle = 'none';
+  dropdownUl.style.padding = '10px 0';
+  dropdownUl.style.margin = '10px 0 0 0';
+  dropdownUl.style.minWidth = '200px';
+  dropdownUl.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+  dropdownUl.style.border = '1px solid #e0e0e0';
+  dropdownUl.style.zIndex = '10001';
+
+  linksArray.forEach((link) => {
+    const subLi = document.createElement('li');
+    subLi.style.padding = '8px 20px';
+    const newSubLink = link.cloneNode(true);
+    newSubLink.style.color = '#444444';
+    newSubLink.style.textDecoration = 'none';
+    newSubLink.style.fontSize = '14px';
+    newSubLink.style.display = 'block';
+    subLi.appendChild(newSubLink);
+    dropdownUl.appendChild(subLi);
+  });
+
+  dropdownDiv.appendChild(dropdownUl);
+
+  // Événements d'affichage au survol pour plus de fluidité
+  dropdownDiv.addEventListener('mouseenter', () => { dropdownUl.style.display = 'block'; });
+  dropdownDiv.addEventListener('mouseleave', () => { dropdownUl.style.display = 'none'; });
+
+  container.appendChild(dropdownDiv);
 }
 
 /**
