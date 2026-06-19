@@ -1,34 +1,28 @@
 export default async function decorate(block) {
-  // On attend une fraction de seconde pour être sûr que le HTML d'AEM est prêt
-  setTimeout(() => {
-    const rows = block.querySelectorAll('div > div');
-    if (!rows.length) return;
+  // 1. On cherche la liste de tes puces décalées
+  let mainUl = block.querySelector('ul');
 
-    const ul = document.createElement('ul');
-    ul.classList.add('nav-menu');
-    ul.style.display = 'flex';
-    ul.style.listStyle = 'none';
-    ul.style.background = '#222';
-    ul.style.padding = '10px';
-
-    rows.forEach((row) => {
-      const text = row.textContent.trim();
-      if (!text) return;
-
+  // 2. Si AEM n'a pas créé de liste, on force la création d'un menu simple
+  if (!mainUl) {
+    mainUl = document.createElement('ul');
+    const links = block.querySelectorAll('a');
+    links.forEach((link) => {
       const li = document.createElement('li');
-      li.style.padding = '0 15px';
-      li.style.color = '#fff';
-      
-      const link = row.querySelector('a');
-      if (link) {
-        li.innerHTML = `<a href="${link.href}" style="color:#fff; text-decoration:none;">${text}</a>`;
-      } else {
-        li.innerHTML = `<span style="cursor:pointer; font-weight:bold;">${text} ▼</span>`;
-      }
-      ul.appendChild(li);
+      li.appendChild(link.cloneNode(true));
+      mainUl.appendChild(li);
     });
+  }
 
-    block.textContent = '';
-    block.appendChild(ul);
-  }, 100);
+  // 3. On applique notre style de base directement en restant simple
+  mainUl.style.display = 'flex';
+  mainUl.style.gap = '20px';
+  mainUl.style.listStyle = 'none';
+  mainUl.style.background = '#000';
+  mainUl.style.padding = '15px';
+
+  mainUl.querySelectorAll('a').forEach(a => a.style.color = '#fff');
+
+  // 4. On affiche le résultat à l'écran
+  block.textContent = '';
+  block.appendChild(mainUl);
 }
