@@ -1,12 +1,12 @@
 export default async function decorate(block) {
   console.log("=== Lancement du Header Sécurisé ===");
 
-  // On essaie de récupérer la liste générée par AEM
+  // On essaie de récupérer la liste <ul> générée par tes puces décalées
   const mainUl = block.querySelector('ul');
   
   if (!mainUl) {
     console.warn("Pas de liste <ul> standard trouvée, bascule sur la méthode alternative...");
-    // Méthode de secours si AEM utilise des paragraphes ou des divs
+    // Méthode de secours si AEM a aplati la structure du tableau
     const rows = block.querySelectorAll('div > div > *');
     if (!rows.length) return;
     
@@ -49,21 +49,21 @@ export default async function decorate(block) {
     return;
   }
 
-  // SI LA LISTE UL EXISTE (Grâce à tes puces décalées)
+  // SI LA LISTE UL EXISTE (Grâce à tes puces décalées sur l'éditeur DA)
   mainUl.classList.add('nav-menu');
 
-  // On regarde tous les <li> du tableau
+  // On configure chaque élément de la liste
   const lis = mainUl.querySelectorAll('li');
   lis.forEach((li) => {
     const subUl = li.querySelector('ul');
     const link = li.querySelector('a');
 
-    // Si le li contient une sous-liste (grâce à ton décalage) ou s'il n'a pas de lien direct
+    // Si la puce contient une sous-liste décalée ou n'a pas de lien direct (ex: Jeux, Interviews...)
     if (subUl || !link) {
       li.classList.add('nav-item', 'dropdown');
       if (subUl) subUl.classList.add('dropdown-menu');
 
-      // On isole le texte du titre (ex: Jeux) pour le rendre cliquable
+      // On isole le texte du titre pour y ajouter la petite flèche et le rendre cliquable
       const firstChild = li.firstChild;
       if (firstChild && firstChild.nodeType === Node.TEXT_NODE) {
         const span = document.createElement('span');
@@ -74,20 +74,22 @@ export default async function decorate(block) {
         firstChild.remove();
       }
 
+      // Écouteur de clic pour ouvrir/fermer le menu déroulant
       li.addEventListener('click', (e) => {
         e.stopPropagation();
-        // Ferme les autres menus
+        // Ferme les autres menus ouverts pour éviter qu'ils se chevauchent
         block.querySelectorAll('.dropdown.is-open').forEach((d) => {
           if (d !== li) d.classList.remove('is-open');
         });
         li.classList.toggle('is-open');
       });
     } else {
+      // C'est un lien direct (comme Accueil)
       li.classList.add('nav-item');
     }
   });
 
-  // Fermer au clic n'importe où ailleurs
+  // Fermer tous les menus déroulants si on clique n'importe où ailleurs sur l'écran
   document.addEventListener('click', () => {
     block.querySelectorAll('.dropdown.is-open').forEach((d) => d.classList.remove('is-open'));
   });
