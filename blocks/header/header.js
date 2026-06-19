@@ -1,36 +1,64 @@
-export default function decorate(block) {
-  // On récupère le contenu de la navigation (souvent généré via nav.plain.html par AEM)
-  const nav = block.querySelector('nav') || block;
+export default async function decorate(block) {
+  // On va chercher le contenu du tableau navigation
+  const nav = block.querySelector('.navigation > div > div');
+  if (!nav) return;
+
+  const ul = document.createElement('ul');
+  ul.classList.add('nav-menu');
   
-  // On cherche tous les éléments de liste (<li>) qui contiennent une sous-liste (<ul>)
-  const menuItems = nav.querySelectorAll('ul > li');
+  let currentDropdown = null;
+  let currentDropdownUl = null;
 
-  menuItems.forEach((item) => {
-    const subList = item.querySelector('ul');
+  // On regarde chaque ligne de ton tableau DA
+  const items = nav.querySelectorAll('li, p');
+  items.forEach((item) => {
+    const link = item.querySelector('a');
     
-    if (subList) {
-      // ÉTAPE 1 : On marque cet élément comme ayant un menu déroulant
-      item.classList.add('has-dropdown');
-
-      // ÉTAPE 2 : On crée un petit bouton/flèche pour cliquer
-      const trigger = document.createElement('span');
-      trigger.classList.add('dropdown-trigger');
-      trigger.textContent = ' ▼';
+    if (!link) {
+      // C'est un texte noir (ex: Jeux, Interviews) -> On crée un menu déroulant
+      const li = document.createElement('li');
+      li.classList.add('nav-item', 'dropdown');
+      li.innerHTML = `<span class="dropdown-toggle">${item.textContent.trim()}</span>`;
       
-      // On insère la flèche juste avant la sous-liste
-      item.insertBefore(trigger, subList);
+      currentDropdownUl = document.createElement('ul');
+      currentDropdownUl.classList.add('dropdown-menu');
+      li.appendChild(currentDropdownUl);
+      
+      ul.appendChild(li);
+      currentDropdown = li;
 
-      // ÉTAPE 3 : Gestion du clic pour ouvrir/fermer
-      item.addEventListener('click', (e) => {
-        // Empêche le clic de fermer immédiatement si on clique sur un sous-lien
-        if (e.target.closest('ul') === subList) return;
-
-        e.preventDefault();
+      // Écouteur de clic pour ouvrir/fermer le menu
+      li.addEventListener('click', (e) => {
         e.stopPropagation();
-        
-        // On bascule la classe "is-open" pour afficher ou masquer en CSS
-        item.classList.toggle('is-open');
+        li.classList.toggle('is-open');
       });
+    } else if (currentDropdownUl) {
+      // C'est un lien bleu -> On le met dans le menu déroulant actuel
+      const li = document.createElement('li');
+      const newLink = document.createElement('a');
+      newLink.href = link.href;
+      newLink.textContent = item.textContent.trim();
+      li.appendChild(newLink);
+      currentDropdownUl.appendChild(li);
+    } else {
+      // C'est un lien seul (comme Accueil)
+      const li = document.createElement('li');
+      li.classList.add('nav-item');
+      const newLink = document.createElement('a');
+      newLink.href = link.href;
+      newLink.textContent = item.textContent.trim();
+      li.appendChild(newLink);
+      ul.appendChild(li);
     }
   });
+
+  // Fermer les menus si on clique ailleurs sur la page
+  document.addEventListener('click', () => {
+    ul.querySelectorAll('.dropdown.is-open').forEach((openDropdown) => {
+      openDropdown.classList.remove('is-open');
+    });
+  });
+
+  block.textContent = '';
+  block.appendChild(ul);
 }
