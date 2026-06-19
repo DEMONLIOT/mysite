@@ -1,147 +1,97 @@
 export default async function decorate(block) {
-  // 1. Récupérer tous les liens du document nav
-  const allLinks = [...block.querySelectorAll('a')];
-  if (allLinks.length === 0) return;
+  // 1. On extrait la liste brute générée par AEM
+  const languagesList = block.querySelector('ul');
+  if (!languagesList) return;
 
-  // 2. Nettoyage complet du bloc d'origine
+  // 2. Nettoyage complet du bloc
   block.textContent = '';
-  block.className = 'custom-header-block';
+  
+  // Style de la barre principale (Blanche, fixe et horizontale)
+  const nav = document.createElement('nav');
+  nav.style.display = 'flex';
+  nav.style.flexDirection = 'row';
+  nav.style.alignItems = 'center';
+  nav.style.justifyContent = 'flex-start';
+  nav.style.backgroundColor = '#ffffff';
+  nav.style.padding = '15px 40px';
+  nav.style.fontFamily = 'sans-serif';
+  nav.style.borderBottom = '1px solid #e0e0e0';
+  nav.style.position = 'fixed';
+  nav.style.top = '0';
+  nav.style.left = '0';
+  nav.style.width = '100%';
+  nav.style.boxSizing = 'border-box';
+  nav.style.zIndex = '10000';
 
-  // Fixation de la barre tout en haut de la page
-  const globalHeader = block.closest('header');
-  if (globalHeader) {
-    globalHeader.style.position = 'fixed';
-    globalHeader.style.top = '0';
-    globalHeader.style.left = '0';
-    globalHeader.style.width = '100%';
-    globalHeader.style.zIndex = '10000';
-    globalHeader.style.backgroundColor = '#ffffff';
-    globalHeader.style.borderBottom = '1px solid #e0e0e0';
-    document.body.style.paddingTop = '70px';
-  }
+  // Fix pour éviter que le contenu du site passe sous la barre fixe
+  document.body.style.paddingTop = '70px';
 
-  // 3. Création du conteneur de la barre horizontale
-  const navContainer = document.createElement('div');
-  navContainer.style.display = 'flex';
-  navContainer.style.flexDirection = 'row';
-  navContainer.style.alignItems = 'center';
-  navContainer.style.margin = '0';
-  navContainer.style.padding = '15px 30px';
-  navContainer.style.backgroundColor = '#ffffff';
-  navContainer.style.fontFamily = 'sans-serif';
-  navContainer.style.width = '100%';
-  navContainer.style.boxSizing = 'border-box';
+  // 3. On traite chaque premier niveau (Accueil, Jeux, Interviews...)
+  const mainItems = languagesList.querySelectorAll(':scope > li');
+  
+  mainItems.forEach((li) => {
+    const itemContainer = document.createElement('div');
+    itemContainer.style.position = 'relative';
+    itemContainer.style.padding = '0 20px';
+    
+    // On cherche s'il y a un lien direct (comme Accueil) ou juste du texte (comme Jeux)
+    const link = li.querySelector(':scope > a');
+    const subList = li.querySelector('ul');
 
-  // 4. Tri ultra-précis des liens par mots-clés pour éviter le mélange
-  const accueilLinks = [];
-  const jeuxDropdownLinks = [];
-  const otherMainLinks = [];
+    if (subList) {
+      // C'est un menu déroulant (ex: Jeux ou Interviews)
+      const trigger = document.createElement('span');
+      trigger.style.cursor = 'pointer';
+      trigger.style.fontWeight = '600';
+      trigger.style.color = '#222222';
+      trigger.style.fontSize = '16px';
+      trigger.textContent = (link ? link.textContent : li.firstChild.textContent.trim()) + ' ▼';
+      itemContainer.appendChild(trigger);
 
-  allLinks.forEach((link) => {
-    const text = link.textContent.toLowerCase().trim();
+      // On design le sous-menu caché
+      subList.style.display = 'none';
+      subList.style.position = 'absolute';
+      subList.style.top = '100%';
+      subList.style.left = '0';
+      subList.style.backgroundColor = '#ffffff';
+      subList.style.boxShadow = '0 8px 16px rgba(0,0,0,0.1)';
+      subList.style.border = '1px solid #e0e0e0';
+      subList.style.listStyle = 'none';
+      subList.style.padding = '10px 0';
+      subList.style.margin = '10px 0 0 0';
+      subList.style.minWidth = '200px';
+      subList.style.borderRadius = '4px';
 
-    if (text.includes('acc') || text === 'home') {
-      accueilLinks.push(link);
-    } else if (
-      text.includes('playstation') || 
-      text.includes('xbox') || 
-      text.includes('nintendo') || 
-      text.includes('switch') || 
-      text.includes('clicker') || 
-      text.includes('game') ||
-      link.closest('ul ul') // Sécurité si AEM a gardé une vraie sous-liste
-    ) {
-      jeuxDropdownLinks.push(link);
-    } else if (!text.includes('jeux')) {
-      // Tout le reste (Interviews, Actualités, Contact...) va sur la barre principale
-      otherMainLinks.push(link);
+      // On applique des styles aux liens du sous-menu
+      subList.querySelectorAll('a').forEach((subLink) => {
+        subLink.style.color = '#444444';
+        subLink.style.textDecoration = 'none';
+        subLink.style.display = 'block';
+        subLink.style.padding = '8px 20px';
+        subLink.style.fontSize = '14px';
+        
+        // Effet de survol sur les sous-liens
+        subLink.addEventListener('mouseenter', () => subLink.style.backgroundColor = '#f5f5f5');
+        subLink.addEventListener('mouseleave', () => subLink.style.backgroundColor = 'transparent');
+      });
+
+      itemContainer.appendChild(subList);
+
+      // Effet d'ouverture/fermeture au survol du bloc
+      itemContainer.addEventListener('mouseenter', () => subList.style.display = 'block');
+      itemContainer.addEventListener('mouseleave', () => subList.style.display = 'none');
+
+    } else if (link) {
+      // C'est un lien simple sans sous-menu (ex: Accueil)
+      link.style.color = '#222222';
+      link.style.textDecoration = 'none';
+      link.style.fontWeight = '600';
+      link.style.fontSize = '16px';
+      itemContainer.appendChild(link.cloneNode(true));
     }
+
+    nav.appendChild(itemContainer);
   });
 
-  // 5. Reconstruction visuelle de la barre
-
-  // Étape A : Afficher l'Accueil si trouvé (ou par défaut le tout premier lien)
-  if (accueilLinks.length > 0) {
-    createSimpleLink(accueilLinks[0], navContainer);
-  } else if (allLinks[0] && !allLinks[0].textContent.toLowerCase().includes('jeux')) {
-    createSimpleLink(allLinks[0], navContainer);
-  }
-
-  // Étape B : Créer le menu déroulant JEUX au milieu
-  const dropdownDiv = document.createElement('div');
-  dropdownDiv.style.position = 'relative';
-  dropdownDiv.style.padding = '0 20px';
-  dropdownDiv.style.display = 'inline-block';
-
-  const trigger = document.createElement('span');
-  trigger.style.cursor = 'pointer';
-  trigger.style.color = '#222222';
-  trigger.style.fontWeight = '600';
-  trigger.style.fontSize = '16px';
-  trigger.textContent = "Jeux ▼";
-  dropdownDiv.appendChild(trigger);
-
-  const dropdownUl = document.createElement('ul');
-  dropdownUl.style.display = 'none';
-  dropdownUl.style.position = 'absolute';
-  dropdownUl.style.top = '100%';
-  dropdownUl.style.left = '0';
-  dropdownUl.style.backgroundColor = '#ffffff';
-  dropdownUl.style.listStyle = 'none';
-  dropdownUl.style.padding = '10px 0';
-  dropdownUl.style.margin = '10px 0 0 0';
-  dropdownUl.style.minWidth = '180px';
-  dropdownUl.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-  dropdownUl.style.border = '1px solid #e0e0e0';
-  dropdownUl.style.zIndex = '10001';
-
-  // On injecte uniquement les vrais sous-jeux ciblés dans le menu déroulant
-  jeuxDropdownLinks.forEach((link) => {
-    const subLi = document.createElement('li');
-    subLi.style.padding = '8px 20px';
-    const newSubLink = link.cloneNode(true);
-    newSubLink.style.color = '#444444';
-    newSubLink.style.textDecoration = 'none';
-    newSubLink.style.fontSize = '14px';
-    newSubLink.style.display = 'block';
-    subLi.appendChild(newSubLink);
-    dropdownUl.appendChild(subLi);
-  });
-
-  dropdownDiv.appendChild(dropdownUl);
-  
-  // Clic pour ouvrir/fermer le menu Jeux
-  dropdownDiv.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const isOpen = dropdownUl.style.display === 'block';
-    dropdownUl.style.display = isOpen ? 'none' : 'block';
-  });
-  
-  navContainer.appendChild(dropdownDiv);
-
-  // Étape C : Afficher les autres catégories (Interviews, etc.) à droite de Jeux
-  otherMainLinks.forEach((link) => {
-    createSimpleLink(link, navContainer);
-  });
-
-  // Fonction outil pour générer un lien horizontal propre
-  function createSimpleLink(linkElement, container) {
-    const itemDiv = document.createElement('div');
-    itemDiv.style.padding = '0 20px';
-    itemDiv.style.display = 'inline-block';
-    const newLink = linkElement.cloneNode(true);
-    newLink.style.color = '#222222';
-    newLink.style.textDecoration = 'none';
-    newLink.style.fontWeight = '600';
-    newLink.style.fontSize = '16px';
-    itemDiv.appendChild(newLink);
-    container.appendChild(itemDiv);
-  }
-
-  // Fermer le sous-menu si on clique n'importe où ailleurs
-  document.addEventListener('click', () => {
-    dropdownUl.style.display = 'none';
-  });
-
-  block.appendChild(navContainer);
+  block.appendChild(nav);
 }
