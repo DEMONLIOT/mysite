@@ -159,13 +159,14 @@ async function loadEager(doc) {
  * @param {Element} doc The container element
  */
 async function loadLazy(doc) {
-  // --- INJECTION SANS CACHE DU HEADER ---
+  // --- INJECTION DU HEADER AVEC LIEN ABSOLU ET SANS CACHE ---
   const headerElement = doc.querySelector('header');
   if (headerElement) {
-    const headerBlock = buildBlock('header', '');
+    // FORCE LE LIEN VERS LE NAV DE LA RACINE DU SITE (/nav)
+    const headerBlock = buildBlock('header', '<p><a href="/nav">/nav</a></p>');
     headerElement.append(headerBlock);
     
-    // On génère une clé unique pour tuer le cache d'AEM à coup sûr
+    // Cache-buster pour charger le header.js le plus récent
     const forceUpdateKey = Date.now();
     import(`../blocks/header/header.js?v=${forceUpdateKey}`)
       .then((module) => {
@@ -174,7 +175,7 @@ async function loadLazy(doc) {
         }
       })
       .catch((err) => {
-        console.warn('Echec du buster de cache header, chargement classique alternatif...', err);
+        console.warn('Echec du buster de cache header, chargement alternatif...', err);
         loadHeader(headerElement);
       });
   }
