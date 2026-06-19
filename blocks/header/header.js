@@ -1,7 +1,7 @@
 export default async function decorate(block) {
-  // On va chercher le contenu du tableau navigation
-  const nav = block.querySelector('.navigation > div > div');
-  if (!nav) return;
+  // On récupère toutes les lignes de texte du bloc navigation
+  const rows = block.querySelectorAll('div > div > *');
+  if (!rows.length) return;
 
   const ul = document.createElement('ul');
   ul.classList.add('nav-menu');
@@ -9,56 +9,69 @@ export default async function decorate(block) {
   let currentDropdown = null;
   let currentDropdownUl = null;
 
-  // On regarde chaque ligne de ton tableau DA
-  const items = nav.querySelectorAll('li, p');
-  items.forEach((item) => {
-    const link = item.querySelector('a');
-    
-    if (!link) {
-      // C'est un texte noir (ex: Jeux, Interviews) -> On crée un menu déroulant
-      const li = document.createElement('li');
-      li.classList.add('nav-item', 'dropdown');
-      li.innerHTML = `<span class="dropdown-toggle">${item.textContent.trim()}</span>`;
-      
-      currentDropdownUl = document.createElement('ul');
-      currentDropdownUl.classList.add('dropdown-menu');
-      li.appendChild(currentDropdownUl);
-      
-      ul.appendChild(li);
-      currentDropdown = li;
+  rows.forEach((element) => {
+    // Si l'élément contient d'autres sous-éléments (comme des <li>), on extrait le texte/lien interne
+    const items = element.tagName === 'UL' || element.tagName === 'OL' 
+      ? element.querySelectorAll('li') 
+      : [element];
 
-      // Écouteur de clic pour ouvrir/fermer le menu
-      li.addEventListener('click', (e) => {
-        e.stopPropagation();
-        li.classList.toggle('is-open');
-      });
-    } else if (currentDropdownUl) {
-      // C'est un lien bleu -> On le met dans le menu déroulant actuel
-      const li = document.createElement('li');
-      const newLink = document.createElement('a');
-      newLink.href = link.href;
-      newLink.textContent = item.textContent.trim();
-      li.appendChild(newLink);
-      currentDropdownUl.appendChild(li);
-    } else {
-      // C'est un lien seul (comme Accueil)
-      const li = document.createElement('li');
-      li.classList.add('nav-item');
-      const newLink = document.createElement('a');
-      newLink.href = link.href;
-      newLink.textContent = item.textContent.trim();
-      li.appendChild(newLink);
-      ul.appendChild(li);
-    }
-  });
+    items.forEach((item) => {
+      const link = item.querySelector('a');
+      const text = item.textContent.trim();
+      
+      if (!text) return; // On ignore les lignes vides
 
-  // Fermer les menus si on clique ailleurs sur la page
-  document.addEventListener('click', () => {
-    ul.querySelectorAll('.dropdown.is-open').forEach((openDropdown) => {
-      openDropdown.classList.remove('is-open');
+      // CAS 1 : C'est l'Accueil (un lien tout seul au début, sans menu déroulant)
+      if (text.toLowerCase().includes('accueil') && link) {
+        const li = document.createElement('li');
+        li.classList.add('nav-item');
+        const newLink = document.createElement('a');
+        newLink.href = link.href;
+        newLink.textContent = text;
+        li.appendChild(newLink);
+        ul.appendChild(li);
+      } 
+      // CAS 2 : C'est un titre de catégorie (Texte noir, pas de lien) -> ex: Jeux, Interviews...
+      else if (!link) {
+        const li = document.createElement('li');
+        li.classList.add('nav-item', 'dropdown');
+        li.innerHTML = `<span class="dropdown-toggle">${text}</span>`;
+        
+        currentDropdownUl = document.createElement('ul');
+        currentDropdownUl.classList.add('dropdown-menu');
+        li.appendChild(currentDropdownUl);
+        
+        ul.appendChild(li);
+        currentDropdown = li;
+
+        // Gestion du clic pour ouvrir le menu déroulant
+        li.addEventListener('click', (e) => {
+          e.stopPropagation();
+          // Ferme les autres menus ouverts avant d'ouvrir celui-ci
+          ul.querySelectorAll('.dropdown.is-open').forEach((d) => {
+            if (d !== li) d.classList.remove('is-open');
+          });
+          li.classList.toggle('is-open');
+        });
+      } 
+      // CAS 3 : C'est une sous-page (Un lien bleu) -> On l'ajoute au menu déroulant en cours
+      else if (currentDropdownUl) {
+        const li = document.createElement('li');
+        const newLink = document.createElement('a');
+        newLink.href = link.href;
+        newLink.textContent = text;
+        li.appendChild(newLink);
+        currentDropdownUl.appendChild(li);
+      }
     });
   });
 
+  // Fermer les menus si on clique n'importe où ailleurs sur l'écran
+  document.addEventListener('click', () => {
+    ul.querySelectorAll('.dropdown.is-open').forEach((d) => d.classList.remove('is-open'));
+  });
+
+  // On vide le bloc et on y injecte notre nouvelle structure propre
   block.textContent = '';
   block.appendChild(ul);
 }
