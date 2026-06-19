@@ -191,3 +191,8 @@ async function loadPage() {
 }
 
 loadPage();
+// Force le chargement du header de secours
+import('../blocks/header/header.js').then((module) => {
+  const headerBlock = document.querySelector('.header, .navigation');
+  if (headerBlock) module.default(headerBlock);
+});
