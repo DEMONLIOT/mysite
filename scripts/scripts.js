@@ -159,7 +159,25 @@ async function loadEager(doc) {
  * @param {Element} doc The container element
  */
 async function loadLazy(doc) {
-  loadHeader(doc.querySelector('header'));
+  // --- INJECTION SANS CACHE DU HEADER ---
+  const headerElement = doc.querySelector('header');
+  if (headerElement) {
+    const headerBlock = buildBlock('header', '');
+    headerElement.append(headerBlock);
+    
+    // On génère une clé unique pour tuer le cache d'AEM à coup sûr
+    const forceUpdateKey = Date.now();
+    import(`../blocks/header/header.js?v=${forceUpdateKey}`)
+      .then((module) => {
+        if (module.default) {
+          module.default(headerBlock);
+        }
+      })
+      .catch((err) => {
+        console.warn('Echec du buster de cache header, chargement classique alternatif...', err);
+        loadHeader(headerElement);
+      });
+  }
 
   const main = doc.querySelector('main');
   await loadSections(main);
