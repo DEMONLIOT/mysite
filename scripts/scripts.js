@@ -159,145 +159,29 @@ async function loadEager(doc) {
  * @param {Element} doc The container element
  */
 async function loadLazy(doc) {
+  // 1. Charger le Header de manière native sur toutes les pages
   const headerElement = doc.querySelector('header');
   if (headerElement) {
     await loadHeader(headerElement);
-    
-    const headerBlock = headerElement.querySelector('.header');
-    if (headerBlock) {
-      // On cible directement la liste à puces racine générée par AEM
-      const rootUl = headerBlock.querySelector('ul');
-      
-      if (rootUl) {
-        // On récupère les éléments de premier niveau (Accueil, Jeux, Interviews...)
-        const topLevelItems = [...rootUl.querySelectorAll(':scope > li')];
-        headerBlock.textContent = '';
-        
-        // Configuration de la barre fixe tout en haut
-        headerBlock.style.position = 'fixed';
-        headerBlock.style.top = '0';
-        headerBlock.style.left = '0';
-        headerBlock.style.width = '100%';
-        headerBlock.style.zIndex = '10000';
-        headerBlock.style.backgroundColor = '#ffffff';
-        headerBlock.style.borderBottom = '1px solid #e0e0e0';
-        document.body.style.paddingTop = '70px';
-
-        const navContainer = document.createElement('div');
-        navContainer.style.display = 'flex';
-        navContainer.style.flexDirection = 'row';
-        navContainer.style.alignItems = 'center';
-        navContainer.style.padding = '15px 30px';
-        navContainer.style.fontFamily = 'sans-serif';
-
-        topLevelItems.forEach((li) => {
-          // On regarde s'il y a une sous-liste (les sous-pages du Drive)
-          const subUl = li.querySelector('ul');
-          // On extrait le texte du titre principal (ex: "Jeux", "Interviews")
-          let titleText = '';
-          const directLink = li.querySelector(':scope > a');
-          
-          if (directLink) {
-            titleText = directLink.textContent.trim();
-          } else {
-            // Extrait le texte avant la sous-liste
-            const clone = li.cloneNode(true);
-            const childUl = clone.querySelector('ul');
-            if (childUl) childUl.remove();
-            titleText = clone.textContent.trim();
-          }
-
-          if (!titleText) return;
-
-          const itemDiv = document.createElement('div');
-          itemDiv.style.position = 'relative';
-          itemDiv.style.padding = '0 20px';
-          itemDiv.style.display = 'inline-block';
-
-          // S'il y a un sous-menu, on crée un dropdown interactif
-          if (subUl) {
-            const trigger = document.createElement('span');
-            trigger.style.cursor = 'pointer';
-            trigger.style.color = '#222222';
-            trigger.style.fontWeight = '600';
-            trigger.style.fontSize = '16px';
-            trigger.textContent = `${titleText} ▼`;
-            itemDiv.appendChild(trigger);
-
-            // Style de la liste déroulante masquée
-            const dropdownUl = document.createElement('ul');
-            dropdownUl.style.display = 'none';
-            dropdownUl.style.position = 'absolute';
-            dropdownUl.style.top = '100%';
-            dropdownUl.style.left = '0';
-            dropdownUl.style.backgroundColor = '#ffffff';
-            dropdownUl.style.listStyle = 'none';
-            dropdownUl.style.padding = '10px 0';
-            dropdownUl.style.margin = '10px 0 0 0';
-            dropdownUl.style.minWidth = '200px';
-            dropdownUl.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-            dropdownUl.style.border = '1px solid #e0e0e0';
-            dropdownUl.style.zIndex = '10001';
-            dropdownUl.style.borderRadius = '4px';
-
-            // On y déplace les liens du sous-menu
-            subUl.querySelectorAll('a').forEach((subLink) => {
-              const subLi = document.createElement('li');
-              subLi.style.padding = '8px 20px';
-              
-              const newSubLink = subLink.cloneNode(true);
-              newSubLink.style.color = '#444444';
-              newSubLink.style.textDecoration = 'none';
-              newSubLink.style.fontSize = '14px';
-              newSubLink.style.display = 'block';
-              
-              newSubLink.addEventListener('mouseenter', () => { newSubLink.style.backgroundColor = '#f5f5f5'; });
-              newSubLink.addEventListener('mouseleave', () => { newSubLink.style.backgroundColor = 'transparent'; });
-              
-              subLi.appendChild(newSubLink);
-              dropdownUl.appendChild(subLi);
-            });
-
-            itemDiv.appendChild(dropdownUl);
-
-            // Ouvrir / Fermer au survol de la souris
-            itemDiv.addEventListener('mouseenter', () => { dropdownUl.style.display = 'block'; });
-            itemDiv.addEventListener('mouseleave', () => { dropdownUl.style.display = 'none'; });
-
-          } else if (directLink) {
-            // C'est un lien direct sans sous-menu (ex: Accueil)
-            const newLink = directLink.cloneNode(true);
-            newLink.style.color = '#222222';
-            newLink.style.textDecoration = 'none';
-            newLink.style.fontWeight = '600';
-            newLink.style.fontSize = '16px';
-            itemDiv.appendChild(newLink);
-          } else {
-            // Cas générique : juste du texte
-            const textSpan = document.createElement('span');
-            textSpan.style.color = '#222222';
-            textSpan.style.fontWeight = '600';
-            textSpan.style.fontSize = '16px';
-            textSpan.textContent = titleText;
-            itemDiv.appendChild(textSpan);
-          }
-
-          navContainer.appendChild(itemDiv);
-        });
-
-        headerBlock.appendChild(navContainer);
-      }
-    }
   }
 
+  // 2. Charger le contenu principal
   const main = doc.querySelector('main');
-  await loadSections(main);
+  if (main) {
+    await loadSections(main);
+  }
 
+  // 3. Gestion de l'ancrage
   const { hash } = window.location;
   const element = hash ? doc.getElementById(hash.substring(1)) : false;
   if (hash && element) element.scrollIntoView();
 
-  loadFooter(doc.querySelector('footer'));
+  // 4. Charger le Footer
+  const footerElement = doc.querySelector('footer');
+  if (footerElement) {
+    await loadFooter(footerElement);
+  }
+
   loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
   loadFonts();
 }
