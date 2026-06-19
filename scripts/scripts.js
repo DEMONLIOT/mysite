@@ -181,7 +181,6 @@ async function loadLazy(doc) {
 function loadDelayed() {
   // eslint-disable-next-line import/no-cycle
   window.setTimeout(() => import('./delayed.js'), 3000);
-  // load anything that can be postponed to the latest here
 }
 
 async function loadPage() {
@@ -191,8 +190,3 @@ async function loadPage() {
 }
 
 loadPage();
-// Force le chargement du header de secours
-import('../blocks/header/header.js').then((module) => {
-  const headerBlock = document.querySelector('.header, .navigation');
-  if (headerBlock) module.default(headerBlock);
-});
