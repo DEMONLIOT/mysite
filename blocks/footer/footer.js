@@ -1,20 +1,21 @@
-import { getMetadata } from '../../scripts/aem.js';
-import { loadFragment } from '../fragment/fragment.js';
-
-/**
- * loads and decorates the footer
- * @param {Element} block The footer block element
- */
 export default async function decorate(block) {
-  // load footer as fragment
-  const footerMeta = getMetadata('footer');
-  const footerPath = footerMeta ? new URL(footerMeta, window.location).pathname : '/footer';
-  const fragment = await loadFragment(footerPath);
-
-  // decorate footer DOM
-  block.textContent = '';
-  const footer = document.createElement('div');
-  while (fragment.firstElementChild) footer.append(fragment.firstElementChild);
-
-  block.append(footer);
+  // On essaie de récupérer le footer, mais de manière sécurisée
+  const footerMeta = document.querySelector('meta[name="footer"]');
+  const footerPath = footerMeta ? footerMeta.content : '/footer';
+  
+  try {
+    const resp = await fetch(`${footerPath}.plain.html`);
+    if (resp.ok) {
+      const html = await resp.text();
+      const footer = document.createElement('div');
+      footer.innerHTML = html;
+      block.append(footer);
+    } else {
+      console.warn('Le fichier footer n\'a pas pu être chargé (404), mais on continue !');
+      block.remove(); // On enlève le bloc vide pour ne pas faire planter la page
+    }
+  } catch (e) {
+    console.error('Erreur lors du chargement du footer:', e);
+    block.remove();
+  }
 }
