@@ -1,99 +1,121 @@
 export default async function decorate(block) {
-  // 1. On force TOUT le bloc du header à se mettre tout en haut en horizontal et blanc
-  block.style.position = 'fixed';
-  block.style.top = '0';
-  block.style.left = '0';
-  block.style.width = '100%';
-  block.style.backgroundColor = '#ffffff';
-  block.style.borderBottom = '1px solid #e0e0e0';
-  block.style.zIndex = '10000';
-  block.style.boxSizing = 'border-box';
-  block.style.fontFamily = 'sans-serif';
+  console.log("=== Lancement du Header Nettoyeur ===");
 
-  // On décale le contenu du site pour ne pas qu'il soit caché sous la barre
-  document.body.style.paddingTop = '60px';
-
+  // 1. On cherche la liste de tes liens dans le bloc
+  const links = block.querySelectorAll('a');
   const mainUl = block.querySelector('ul');
-  if (!mainUl) return;
+  
+  // Si AEM n'a rien chargé du tout, on s'arrête
+  if (!mainUl && links.length === 0) return;
 
-  // 2. Style de la liste principale (Horizontale)
-  mainUl.style.display = 'flex';
-  mainUl.style.flexDirection = 'row';
-  mainUl.style.listStyle = 'none';
-  mainUl.style.margin = '0';
-  mainUl.style.padding = '15px 30px';
-  mainUl.style.alignItems = 'center';
+  // 2. ON NETTOIE TOUT : On efface les styles bizarres d'AEM
+  block.textContent = ''; 
+  block.className = 'custom-header-block';
 
-  const lis = mainUl.querySelectorAll(':scope > li');
-  lis.forEach((li) => {
-    li.style.position = 'relative';
-    li.style.padding = '0 20px';
+  // 3. On force le bloc parent à se mettre tout en haut horizontalement
+  const navContainer = document.createElement('nav');
+  navContainer.style.display = 'flex';
+  navContainer.style.flexDirection = 'row';
+  navContainer.style.alignItems = 'center';
+  navContainer.style.justifyContent = 'flex-start';
+  navContainer.style.listStyle = 'none';
+  navContainer.style.margin = '0';
+  navContainer.style.padding = '15px 30px';
+  navContainer.style.backgroundColor = '#ffffff';
+  navContainer.style.fontFamily = 'sans-serif';
+  navContainer.style.width = '100%';
+  navContainer.style.boxSizing = 'border-box';
 
-    const subUl = li.querySelector('ul');
-    const link = li.querySelector('a');
+  // On force l'enveloppe HTML d'AEM globale à se fixer tout en haut
+  const globalHeader = block.closest('header');
+  if (globalHeader) {
+    globalHeader.style.position = 'fixed';
+    globalHeader.style.top = '0';
+    globalHeader.style.left = '0';
+    globalHeader.style.width = '100%';
+    globalHeader.style.zIndex = '10000';
+    globalHeader.style.backgroundColor = '#ffffff';
+    globalHeader.style.borderBottom = '1px solid #e0e0e0';
+    document.body.style.paddingTop = '70px'; // Évite de cacher le texte du site
+  }
 
-    // Style des liens principaux
-    if (link) {
-      link.style.color = '#222222';
-      link.style.textDecoration = 'none';
-      link.style.fontWeight = '600';
-    }
+  // 4. Reconstruction propre à partir de la liste d'origine
+  if (mainUl) {
+    const topLevels = mainUl.querySelectorAll(':scope > li');
+    topLevels.forEach((li) => {
+      const itemLi = document.createElement('div');
+      itemLi.style.position = 'relative';
+      itemLi.style.padding = '0 20px';
 
-    // Si on a un sous-menu
-    if (subUl) {
-      // 3. ON CACHE LE SOUS-MENU PAR DÉFAUT
-      subUl.style.display = 'none'; 
-      subUl.style.position = 'absolute';
-      subUl.style.top = '100%';
-      subUl.style.left = '0';
-      subUl.style.backgroundColor = '#ffffff';
-      subUl.style.listStyle = 'none';
-      subUl.style.padding = '10px 0';
-      subUl.style.margin = '10px 0 0 0';
-      subUl.style.minWidth = '180px';
-      subUl.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-      subUl.style.border = '1px solid #e0e0e0';
-      subUl.style.zIndex = '10001';
+      const subUl = li.querySelector('ul');
+      const mainLink = li.querySelector('a');
+      const textNode = li.firstChild;
 
-      // Style des liens dans le sous-menu
-      subUl.querySelectorAll('a').forEach(subLink => {
-        subLink.style.color = '#444444';
-        subLink.style.textDecoration = 'none';
-        subLink.style.fontSize = '14px';
-        subLink.style.display = 'block';
-        subLink.parentElement.style.padding = '8px 20px';
-      });
+      // S'il y a un sous-menu (ex: Jeux)
+      if (subUl) {
+        const trigger = document.createElement('span');
+        trigger.style.cursor = 'pointer';
+        trigger.style.color = '#222222';
+        trigger.style.fontWeight = '600';
+        trigger.style.fontSize = '16px';
+        trigger.textContent = textNode ? textNode.textContent.trim() + " ▼" : "Menu ▼";
+        itemLi.appendChild(trigger);
 
-      // Transformation du texte principal en bouton cliquable
-      const firstChild = li.firstChild;
-      if (firstChild && firstChild.nodeType === Node.TEXT_NODE) {
-        const span = document.createElement('span');
-        span.style.cursor = 'pointer';
-        span.style.color = '#222222';
-        span.style.fontWeight = '600';
-        span.textContent = firstChild.textContent.trim() + " ▼";
-        li.insertBefore(span, firstChild);
-        firstChild.remove();
+        // Création du sous-menu caché
+        const dropdown = document.createElement('ul');
+        dropdown.style.display = 'none'; // CACHÉ PAR DÉFAUT
+        dropdown.style.position = 'absolute';
+        dropdown.style.top = '100%';
+        dropdown.style.left = '0';
+        dropdown.style.backgroundColor = '#ffffff';
+        dropdown.style.listStyle = 'none';
+        dropdown.style.padding = '10px 0';
+        dropdown.style.margin = '10px 0 0 0';
+        dropdown.style.minWidth = '180px';
+        dropdown.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+        dropdown.style.border = '1px solid #e0e0e0';
+        dropdown.style.zIndex = '10001';
+
+        subUl.querySelectorAll('a').forEach((subLink) => {
+          const subLi = document.createElement('li');
+          subLi.style.padding = '8px 20px';
+          const newSubLink = subLink.cloneNode(true);
+          newSubLink.style.color = '#444444';
+          newSubLink.style.textDecoration = 'none';
+          newSubLink.style.fontSize = '14px';
+          newSubLink.style.display = 'block';
+          subLi.appendChild(newSubLink);
+          dropdown.appendChild(subLi);
+        });
+
+        itemLi.appendChild(dropdown);
+
+        // Clic pour ouvrir/fermer
+        itemLi.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const isCurrentlyOpen = dropdown.style.display === 'block';
+          navContainer.querySelectorAll('ul').forEach(ul => ul.style.display = 'none'); // Ferme tout
+          dropdown.style.display = isCurrentlyOpen ? 'none' : 'block';
+        });
+
+      } else if (mainLink) {
+        // Lien direct simple (ex: Accueil)
+        const newMainLink = mainLink.cloneNode(true);
+        newMainLink.style.color = '#222222';
+        newMainLink.style.textDecoration = 'none';
+        newMainLink.style.fontWeight = '600';
+        newMainLink.style.fontSize = '16px';
+        itemLi.appendChild(newMainLink);
       }
 
-      // 4. GESTION DU CLIC POUR AFFICHER / CACHER
-      li.addEventListener('click', (e) => {
-        e.stopPropagation();
-        
-        // Est-ce qu'il est déjà ouvert ?
-        const isOpen = subUl.style.display === 'block';
-        
-        // On ferme tous les sous-menus ouverts sur la page
-        block.querySelectorAll('ul ul').forEach(ul => ul.style.display = 'none');
-        
-        // On bascule l'état de celui-ci
-        subUl.style.display = isOpen ? 'none' : 'block';
-      });
-    }
+      navContainer.appendChild(itemLi);
+    });
+  }
+
+  // On ferme les menus au clic extérieur
+  document.addEventListener('click', () => {
+    navContainer.querySelectorAll('ul').forEach(ul => ul.style.display = 'none');
   });
 
-  // Si on clique n'importe où ailleurs, on ferme les sous-menus
-  document.addEventListener('click', () => {
-    block.querySelectorAll('ul ul').forEach(ul => ul.style.display = 'none');
-  });
+  block.appendChild(navContainer);
 }
