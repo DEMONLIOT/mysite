@@ -1,13 +1,13 @@
 export default async function decorate(block) {
-  // 1. On récupère tous les liens du tableau
+  // 1. Récupérer tous les liens du document nav
   const allLinks = [...block.querySelectorAll('a')];
   if (allLinks.length === 0) return;
 
-  // 2. Nettoyage complet du bloc
+  // 2. Nettoyage complet du bloc d'origine
   block.textContent = '';
   block.className = 'custom-header-block';
 
-  // Fixation de la barre blanche tout en haut
+  // Fixation de la barre tout en haut de la page
   const globalHeader = block.closest('header');
   if (globalHeader) {
     globalHeader.style.position = 'fixed';
@@ -20,7 +20,7 @@ export default async function decorate(block) {
     document.body.style.paddingTop = '70px';
   }
 
-  // 3. Conteneur horizontal
+  // 3. Création du conteneur de la barre horizontale
   const navContainer = document.createElement('div');
   navContainer.style.display = 'flex';
   navContainer.style.flexDirection = 'row';
@@ -32,47 +32,42 @@ export default async function decorate(block) {
   navContainer.style.width = '100%';
   navContainer.style.boxSizing = 'border-box';
 
-  // 4. Identification des liens du sous-menu de Jeux
-  // Tes sous-liens (PlayStation, Xbox, Clicker...) sont les seuls qui sont VRAIMENT dans une sous-liste HTML <ul>
-  const subLinks = [];
-  const mainLinks = [];
+  // 4. Tri ultra-précis des liens par mots-clés pour éviter le mélange
+  const accueilLinks = [];
+  const jeuxDropdownLinks = [];
+  const otherMainLinks = [];
 
   allLinks.forEach((link) => {
-    // Si le lien est dans une liste imbriquée, c'est un enfant de Jeux
-    if (link.closest('ul ul') || link.parentElement.closest('ul ul')) {
-      subLinks.push(link);
-    } else {
-      mainLinks.push(link);
+    const text = link.textContent.toLowerCase().trim();
+
+    if (text.includes('acc') || text === 'home') {
+      accueilLinks.push(link);
+    } else if (
+      text.includes('playstation') || 
+      text.includes('xbox') || 
+      text.includes('nintendo') || 
+      text.includes('switch') || 
+      text.includes('clicker') || 
+      text.includes('game') ||
+      link.closest('ul ul') // Sécurité si AEM a gardé une vraie sous-liste
+    ) {
+      jeuxDropdownLinks.push(link);
+    } else if (!text.includes('jeux')) {
+      // Tout le reste (Interviews, Actualités, Contact...) va sur la barre principale
+      otherMainLinks.push(link);
     }
   });
 
-  // Sécurité : Si AEM a aplati la structure et n'a pas créé de sous-liste <ul>,
-  // on sait que l'Accueil est le 1er (index 0), les sous-jeux sont au milieu, et Interviews/le reste sont à la fin.
-  const hasRealTree = subLinks.length > 0;
+  // 5. Reconstruction visuelle de la barre
 
-  // 5. Reconstruction de la barre d'onglets
-  
-  // Onglet 1 : L'Accueil (et tout ce qui est avant Jeux)
-  mainLinks.forEach((link) => {
-    const text = link.textContent.toLowerCase();
-    
-    // Si on rencontre un lien qui s'appelle "jeux", on s'arrête pour insérer le vrai menu déroulant
-    if (text.includes('jeux')) return;
-    
-    // Si la structure était aplatie, on ne garde ici que ce qui est avant le bloc Jeux (généralement juste Accueil)
-    if (!hasRealTree && mainLinks.indexOf(link) > 0 && mainLinks.indexOf(link) < mainLinks.length - 1) {
-      return; // On saute les sous-parties pour l'instant
-    }
+  // Étape A : Afficher l'Accueil si trouvé (ou par défaut le tout premier lien)
+  if (accueilLinks.length > 0) {
+    createSimpleLink(accueilLinks[0], navContainer);
+  } else if (allLinks[0] && !allLinks[0].textContent.toLowerCase().includes('jeux')) {
+    createSimpleLink(allLinks[0], navContainer);
+  }
 
-    // On crée l'onglet normal
-    if (text.includes('acc') || mainLinks.indexOf(link) === 0 || (!hasRealTree && mainLinks.indexOf(link) === mainLinks.length - 1 && text.includes('inter'))) {
-      if (!text.includes('inter')) {
-        createSimpleLink(link, navContainer);
-      }
-    }
-  });
-
-  // Onglet 2 : Le bouton déroulant JEUX
+  // Étape B : Créer le menu déroulant JEUX au milieu
   const dropdownDiv = document.createElement('div');
   dropdownDiv.style.position = 'relative';
   dropdownDiv.style.padding = '0 20px';
@@ -100,21 +95,22 @@ export default async function decorate(block) {
   dropdownUl.style.border = '1px solid #e0e0e0';
   dropdownUl.style.zIndex = '10001';
 
-  // Remplissage du sous-menu de Jeux uniquement
-  if (hasRealTree) {
-    subLinks.forEach((link) => {
-      addLinkToDropdown(link, dropdownUl);
-    });
-  } else {
-    // Si structure plate, les enfants sont tout ce qui est entre le 1er (Accueil) et le dernier (Interviews)
-    for (let i = 1; i < allLinks.length - 1; i++) {
-      addLinkToDropdown(allLinks[i], dropdownUl);
-    }
-  }
+  // On injecte uniquement les vrais sous-jeux ciblés dans le menu déroulant
+  jeuxDropdownLinks.forEach((link) => {
+    const subLi = document.createElement('li');
+    subLi.style.padding = '8px 20px';
+    const newSubLink = link.cloneNode(true);
+    newSubLink.style.color = '#444444';
+    newSubLink.style.textDecoration = 'none';
+    newSubLink.style.fontSize = '14px';
+    newSubLink.style.display = 'block';
+    subLi.appendChild(newSubLink);
+    dropdownUl.appendChild(subLi);
+  });
 
   dropdownDiv.appendChild(dropdownUl);
   
-  // Gestion du Clic sur Jeux
+  // Clic pour ouvrir/fermer le menu Jeux
   dropdownDiv.addEventListener('click', (e) => {
     e.stopPropagation();
     const isOpen = dropdownUl.style.display === 'block';
@@ -123,15 +119,12 @@ export default async function decorate(block) {
   
   navContainer.appendChild(dropdownDiv);
 
-  // Onglet 3 : Les autres catégories (Interviews, etc. qui sont placés après Jeux)
-  mainLinks.forEach((link) => {
-    const text = link.textContent.toLowerCase();
-    if (text.includes('inter') || (!text.includes('acc') && !text.includes('jeux') && mainLinks.indexOf(link) > 0)) {
-      createSimpleLink(link, navContainer);
-    }
+  // Étape C : Afficher les autres catégories (Interviews, etc.) à droite de Jeux
+  otherMainLinks.forEach((link) => {
+    createSimpleLink(link, navContainer);
   });
 
-  // Fonctions outils de création d'éléments HTML
+  // Fonction outil pour générer un lien horizontal propre
   function createSimpleLink(linkElement, container) {
     const itemDiv = document.createElement('div');
     itemDiv.style.padding = '0 20px';
@@ -145,19 +138,7 @@ export default async function decorate(block) {
     container.appendChild(itemDiv);
   }
 
-  function addLinkToDropdown(linkElement, dropdown) {
-    const subLi = document.createElement('li');
-    subLi.style.padding = '8px 20px';
-    const newSubLink = linkElement.cloneNode(true);
-    newSubLink.style.color = '#444444';
-    newSubLink.style.textDecoration = 'none';
-    newSubLink.style.fontSize = '14px';
-    newSubLink.style.display = 'block';
-    subLi.appendChild(newSubLink);
-    dropdown.appendChild(subLi);
-  }
-
-  // Fermer le menu si on clique à côté
+  // Fermer le sous-menu si on clique n'importe où ailleurs
   document.addEventListener('click', () => {
     dropdownUl.style.display = 'none';
   });
