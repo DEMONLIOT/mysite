@@ -1,57 +1,56 @@
-/* --- Structure de la Navigation Principale --- */
-header nav ul {
+/* Style de la barre de navigation principale */
+.nav-menu {
+  display: flex;
   list-style: none;
   padding: 0;
   margin: 0;
-  display: flex;
-  gap: 20px;
+  background-color: #333;
+  color: #fff;
 }
 
-header nav li {
-  position: relative; /* Très important pour positionner le sous-menu juste en dessous */
+.nav-item {
+  position: relative;
+  padding: 15px 20px;
+}
+
+.nav-item a, .dropdown-toggle {
+  color: #fff;
+  text-decoration: none;
   cursor: pointer;
 }
 
-/* --- Le Sous-Menu (Déroulant) --- */
-header nav li ul {
-  display: none; /* Cache le sous-menu par défaut */
+/* --- LE MENU DÉROULANT --- */
+
+/* Par défaut, on cache le sous-menu */
+.dropdown-menu {
+  display: none;
   position: absolute;
-  top: 100%; /* S'affiche pile en dessous du texte principal */
+  top: 100%;
   left: 0;
-  background-color: #ffffff;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
-  border-radius: 4px;
+  background-color: #444;
+  list-style: none;
   padding: 10px 0;
-  min-width: 180px;
-  flex-direction: column; /* Aligne les sous-parties verticalement */
-  gap: 0;
-  z-index: 1000; /* Passe au-dessus du reste du site (comme ton jeu clicker) */
+  margin: 0;
+  min-width: 150px;
+  z-index: 1000;
+  box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
 }
 
-/* Style des liens à l'intérieur du sous-menu */
-header nav li ul li {
-  padding: 8px 15px;
-  width: 100%;
+.dropdown-menu li {
+  padding: 8px 20px;
 }
 
-header nav li ul li:hover {
-  background-color: #f0f0f0; /* Effet de survol sur les sous-parties */
+.dropdown-menu li a {
+  color: #eee;
+  display: block;
 }
 
-/* --- LA MAGIE DE L'AFFICHAGE --- */
-/* Si on survol à la souris OU si on clique (classe .is-open ajoutée par le JS) */
-header nav li.has-dropdown:hover ul,
-header nav li.has-dropdown.is-open ul {
-  display: flex; /* Le menu apparaît ! */
+.dropdown-menu li a:hover {
+  color: #fff;
+  background-color: #555;
 }
 
-/* Animation de la petite flèche */
-header nav li.has-dropdown .dropdown-trigger {
-  font-size: 0.8rem;
-  transition: transform 0.2s ease;
-  display: inline-block;
-}
-
-header nav li.has-dropdown.is-open .dropdown-trigger {
-  transform: rotate(180deg); /* La flèche se tourne vers le haut quand c'est ouvert */
+/* L'ACTION MAGIQUE : Quand on clique, le JS ajoute 'is-open' et le CSS l'affiche ! */
+.nav-item.dropdown.is-open .dropdown-menu {
+  display: block;
 }
