@@ -1,56 +1,49 @@
-/* Style de la barre de navigation principale */
-.nav-menu {
-  display: flex;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  background-color: #333;
-  color: #fff;
+/* Style de la barre principale */
+.nav-menu, 
+[data-block-name="header"] ul, 
+.header ul {
+  display: flex !important;
+  flex-direction: row;
+  list-style: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background-color: #222 !important;
 }
 
-.nav-item {
-  position: relative;
-  padding: 15px 20px;
+/* Style de chaque bouton (Jeux, Interviews...) */
+.nav-item, 
+[data-block-name="header"] li,
+.header li {
+  position: relative !important;
+  padding: 15px 20px !important;
+  color: #fff !important;
+  list-style: none !important;
 }
 
-.nav-item a, .dropdown-toggle {
-  color: #fff;
-  text-decoration: none;
-  cursor: pointer;
+/* Cache les sous-menus par défaut */
+.dropdown-menu,
+[data-block-name="header"] li ul,
+.header li ul {
+  display: none !important;
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  background-color: #333 !important;
+  padding: 10px !important;
+  min-width: 160px !important;
+  flex-direction: column !important;
+  z-index: 99999 !important;
 }
 
-/* --- LE MENU DÉROULANT --- */
-
-/* Par défaut, on cache le sous-menu */
-.dropdown-menu {
-  display: none;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  background-color: #444;
-  list-style: none;
-  padding: 10px 0;
-  margin: 0;
-  min-width: 150px;
-  z-index: 1000;
-  box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+/* FORCE l'affichage quand la classe 'is-open' est activée par le clic */
+.is-open .dropdown-menu,
+.is-open ul,
+li.is-open > ul {
+  display: flex !important;
 }
 
-.dropdown-menu li {
-  padding: 8px 20px;
-}
-
-.dropdown-menu li a {
-  color: #eee;
-  display: block;
-}
-
-.dropdown-menu li a:hover {
-  color: #fff;
-  background-color: #555;
-}
-
-/* L'ACTION MAGIQUE : Quand on clique, le JS ajoute 'is-open' et le CSS l'affiche ! */
-.nav-item.dropdown.is-open .dropdown-menu {
-  display: block;
+/* Style des liens */
+.nav-item a, .dropdown-menu a, a {
+  color: #fff !important;
+  text-decoration: none !important;
 }
