@@ -1,28 +1,48 @@
 export default async function decorate(block) {
-  // 1. On cherche la liste de tes puces décalées
-  let mainUl = block.querySelector('ul');
-
-  // 2. Si AEM n'a pas créé de liste, on force la création d'un menu simple
+  console.log("=== Activation du Header ===");
+  
+  const mainUl = block.querySelector('ul');
   if (!mainUl) {
-    mainUl = document.createElement('ul');
-    const links = block.querySelectorAll('a');
-    links.forEach((link) => {
-      const li = document.createElement('li');
-      li.appendChild(link.cloneNode(true));
-      mainUl.appendChild(li);
-    });
+    console.warn("Crée une liste à puces dans ton tableau pour activer le menu !");
+    return;
   }
 
-  // 3. On applique notre style de base directement en restant simple
-  mainUl.style.display = 'flex';
-  mainUl.style.gap = '20px';
-  mainUl.style.listStyle = 'none';
-  mainUl.style.background = '#000';
-  mainUl.style.padding = '15px';
+  mainUl.classList.add('nav-menu');
 
-  mainUl.querySelectorAll('a').forEach(a => a.style.color = '#fff');
+  const lis = mainUl.querySelectorAll(':scope > li');
+  lis.forEach((li) => {
+    const subUl = li.querySelector('ul');
+    const link = li.querySelector('a');
 
-  // 4. On affiche le résultat à l'écran
-  block.textContent = '';
-  block.appendChild(mainUl);
+    if (subUl || !link) {
+      li.classList.add('nav-item', 'dropdown');
+      if (subUl) subUl.classList.add('dropdown-menu');
+
+      const firstChild = li.firstChild;
+      if (firstChild && firstChild.nodeType === Node.TEXT_NODE) {
+        const span = document.createElement('span');
+        span.classList.add('dropdown-toggle');
+        span.style.cursor = 'pointer';
+        span.textContent = firstChild.textContent.trim() + " ▼";
+        li.insertBefore(span, firstChild);
+        firstChild.remove();
+      }
+
+      // Écouteur de clic pour ouvrir/fermer
+      li.addEventListener('click', (e) => {
+        e.stopPropagation();
+        // Ferme les autres menus ouverts
+        block.querySelectorAll('.dropdown.is-open').forEach((d) => {
+          if (d !== li) d.classList.remove('is-open');
+        });
+        li.classList.toggle('is-open');
+      });
+    } else {
+      li.classList.add('nav-item');
+    }
+  });
+
+  document.addEventListener('click', () => {
+    block.querySelectorAll('.dropdown.is-open').forEach((d) => d.classList.remove('is-open'));
+  });
 }
