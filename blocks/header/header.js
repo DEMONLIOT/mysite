@@ -1,13 +1,13 @@
 export default async function decorate(block) {
-  // 1. Récupérer tous les liens générés par AEM, peu importe où ils sont cachés
+  // 1. On récupère tous les liens du tableau
   const allLinks = [...block.querySelectorAll('a')];
   if (allLinks.length === 0) return;
 
-  // 2. Nettoyage complet
+  // 2. Nettoyage complet du bloc
   block.textContent = '';
   block.className = 'custom-header-block';
 
-  // Fixation de la barre tout en haut
+  // Fixation de la barre blanche tout en haut
   const globalHeader = block.closest('header');
   if (globalHeader) {
     globalHeader.style.position = 'fixed';
@@ -32,36 +32,47 @@ export default async function decorate(block) {
   navContainer.style.width = '100%';
   navContainer.style.boxSizing = 'border-box';
 
-  // 4. Tri des liens
-  // On sépare le sous-menu (PlayStation, Xbox, Clicker Game...) des boutons principaux
-  const mainItems = [];
-  const subItems = [];
+  // 4. Identification des liens du sous-menu de Jeux
+  // Tes sous-liens (PlayStation, Xbox, Clicker...) sont les seuls qui sont VRAIMENT dans une sous-liste HTML <ul>
+  const subLinks = [];
+  const mainLinks = [];
 
   allLinks.forEach((link) => {
-    // Si le lien est imbriqué profondément dans une sous-liste, c'est un sous-menu
+    // Si le lien est dans une liste imbriquée, c'est un enfant de Jeux
     if (link.closest('ul ul') || link.parentElement.closest('ul ul')) {
-      subItems.push(link);
+      subLinks.push(link);
     } else {
-      mainItems.push(link);
+      mainLinks.push(link);
     }
   });
 
-  // Si AEM a tout aplati et mis dans une seule liste, on considère le 2ème et 3ème lien comme sous-menu
-  if (subItems.length === 0 && allLinks.length > 2) {
-    // Mode secours : On devine selon l'ordre classique (Accueil, Jeux -> Sous-menus -> Interviews)
-    // On va plutôt créer le menu déroulant directement autour du mot clé "Jeux"
-  }
+  // Sécurité : Si AEM a aplati la structure et n'a pas créé de sous-liste <ul>,
+  // on sait que l'Accueil est le 1er (index 0), les sous-jeux sont au milieu, et Interviews/le reste sont à la fin.
+  const hasRealTree = subLinks.length > 0;
 
-  // 5. Reconstruction visuelle
-  // On crée d'abord "Accueil"
-  const accueilLink = allLinks.find(l => l.textContent.toLowerCase().includes('acc'));
-  if (accueilLink) {
-    createSimpleLink(accueilLink, navContainer);
-  } else if (allLinks[0]) {
-    createSimpleLink(allLinks[0], navContainer); // Par défaut le premier
-  }
+  // 5. Reconstruction de la barre d'onglets
+  
+  // Onglet 1 : L'Accueil (et tout ce qui est avant Jeux)
+  mainLinks.forEach((link) => {
+    const text = link.textContent.toLowerCase();
+    
+    // Si on rencontre un lien qui s'appelle "jeux", on s'arrête pour insérer le vrai menu déroulant
+    if (text.includes('jeux')) return;
+    
+    // Si la structure était aplatie, on ne garde ici que ce qui est avant le bloc Jeux (généralement juste Accueil)
+    if (!hasRealTree && mainLinks.indexOf(link) > 0 && mainLinks.indexOf(link) < mainLinks.length - 1) {
+      return; // On saute les sous-parties pour l'instant
+    }
 
-  // On crée le menu déroulant "Jeux"
+    // On crée l'onglet normal
+    if (text.includes('acc') || mainLinks.indexOf(link) === 0 || (!hasRealTree && mainLinks.indexOf(link) === mainLinks.length - 1 && text.includes('inter'))) {
+      if (!text.includes('inter')) {
+        createSimpleLink(link, navContainer);
+      }
+    }
+  });
+
+  // Onglet 2 : Le bouton déroulant JEUX
   const dropdownDiv = document.createElement('div');
   dropdownDiv.style.position = 'relative';
   dropdownDiv.style.padding = '0 20px';
@@ -89,25 +100,21 @@ export default async function decorate(block) {
   dropdownUl.style.border = '1px solid #e0e0e0';
   dropdownUl.style.zIndex = '10001';
 
-  // On remplit le sous-menu avec tous les liens qui ne sont ni l'accueil, ni les interviews
-  allLinks.forEach((link) => {
-    const text = link.textContent.toLowerCase();
-    if (!text.includes('acc') && !text.includes('interview') && !text.includes('jeux')) {
-      const subLi = document.createElement('li');
-      subLi.style.padding = '8px 20px';
-      const newSubLink = link.cloneNode(true);
-      newSubLink.style.color = '#444444';
-      newSubLink.style.textDecoration = 'none';
-      newSubLink.style.fontSize = '14px';
-      newSubLink.style.display = 'block';
-      subLi.appendChild(newSubLink);
-      dropdownUl.appendChild(subLi);
+  // Remplissage du sous-menu de Jeux uniquement
+  if (hasRealTree) {
+    subLinks.forEach((link) => {
+      addLinkToDropdown(link, dropdownUl);
+    });
+  } else {
+    // Si structure plate, les enfants sont tout ce qui est entre le 1er (Accueil) et le dernier (Interviews)
+    for (let i = 1; i < allLinks.length - 1; i++) {
+      addLinkToDropdown(allLinks[i], dropdownUl);
     }
-  });
+  }
 
   dropdownDiv.appendChild(dropdownUl);
   
-  // Clic sur Jeux
+  // Gestion du Clic sur Jeux
   dropdownDiv.addEventListener('click', (e) => {
     e.stopPropagation();
     const isOpen = dropdownUl.style.display === 'block';
@@ -116,13 +123,15 @@ export default async function decorate(block) {
   
   navContainer.appendChild(dropdownDiv);
 
-  // On crée "Interviews" tout à la droite
-  const interviewLink = allLinks.find(l => l.textContent.toLowerCase().includes('inter'));
-  if (interviewLink) {
-    createSimpleLink(interviewLink, navContainer);
-  }
+  // Onglet 3 : Les autres catégories (Interviews, etc. qui sont placés après Jeux)
+  mainLinks.forEach((link) => {
+    const text = link.textContent.toLowerCase();
+    if (text.includes('inter') || (!text.includes('acc') && !text.includes('jeux') && mainLinks.indexOf(link) > 0)) {
+      createSimpleLink(link, navContainer);
+    }
+  });
 
-  // Fonction outil pour générer un lien propre
+  // Fonctions outils de création d'éléments HTML
   function createSimpleLink(linkElement, container) {
     const itemDiv = document.createElement('div');
     itemDiv.style.padding = '0 20px';
@@ -136,7 +145,19 @@ export default async function decorate(block) {
     container.appendChild(itemDiv);
   }
 
-  // Fermer au clic extérieur
+  function addLinkToDropdown(linkElement, dropdown) {
+    const subLi = document.createElement('li');
+    subLi.style.padding = '8px 20px';
+    const newSubLink = linkElement.cloneNode(true);
+    newSubLink.style.color = '#444444';
+    newSubLink.style.textDecoration = 'none';
+    newSubLink.style.fontSize = '14px';
+    newSubLink.style.display = 'block';
+    subLi.appendChild(newSubLink);
+    dropdown.appendChild(subLi);
+  }
+
+  // Fermer le menu si on clique à côté
   document.addEventListener('click', () => {
     dropdownUl.style.display = 'none';
   });
