@@ -1,3 +1,57 @@
+/* ==========================================================================
+   INJECTION ULTRA-PRIORITAIRE HORS PIPELINE AEM (ANTI-BUG PAGES SECONDAIRES)
+   ========================================================================== */
+(async function forceGlobalHeader() {
+  try {
+    // 1. URL absolue de ton menu
+    const projectUrl = 'https://main--NOM-DE-TON-DEPOT--NOM-DE-TON-ORGANISATION.hlx.page/nav.plain.html';
+    
+    // 2. On télécharge le menu immédiatement
+    const response = await fetch(projectUrl);
+    if (!response.ok) return;
+    const html = await response.text();
+
+    // 3. On attend que la page soit prête pour injecter
+    const inject = () => {
+      let header = document.querySelector('header');
+      if (!header) {
+        // Si la balise <header> n'existe pas encore, on la crée à la volée tout en haut du body
+        header = document.createElement('header');
+        document.body.insertBefore(header, document.body.firstChild);
+      }
+      
+      // Injection de la structure exacte pour ton CSS
+      header.innerHTML = `
+        <div class="header-wrapper">
+          <div class="header block">
+            <div>
+              <div>${html}</div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // On force la marge sur le body pour éviter que le texte passe sous la barre fixe
+      document.body.style.paddingTop = '80px';
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', inject);
+    } else {
+      inject();
+    }
+  } catch (e) {
+    console.error('Erreur injection prioritaire header:', e);
+  }
+})();
+
+/* ==========================================================================
+   RESTE DE TON FICHIER SCRIPTS.JS (LAISSE LE CODE SUIVANT INTACT)
+   ========================================================================== */
+import {
+  loadHeader,
+  loadFooter,
+...
 import {
   loadHeader,
   loadFooter,
