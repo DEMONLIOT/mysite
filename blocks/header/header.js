@@ -1,32 +1,34 @@
 import { loadCSS } from '../../scripts/aem.js';
 
 /**
- * Charge le menu global directement depuis la racine absolue
+ * Charge le menu global directement depuis le serveur de preview absolu d'AEM
  * @param {Element} block Le conteneur du bloc header
  */
 export default async function decorate(block) {
   // 1. Charger de force le CSS dédié au header
   await loadCSS(`${window.hlx.codeBasePath}/blocks/header/header.css`);
 
-  // 2. Aller chercher le HTML du menu via le point d'accès standard AEM
+  // 2. Récupérer le HTML brut via l'URL de preview de ton projet
   try {
-    // URL universelle d'AEM Edge Delivery Services pour le fragment nav
-    const response = await fetch('/nav'); 
+    // ⚠️ REMPLACE "TON-DEPOT" ET "TON-ORGANISATION" PAR TES VRAIES INFOS DE SIDEKICK
+    const projectUrl = 'https://main--TON-DEPOT--TON-ORGANISATION.hlx.page/nav.plain.html';
+    
+    const response = await fetch(projectUrl);
     if (response.ok) {
       const html = await response.text();
       
-      // On crée la structure exacte attendue par notre CSS
+      // On recrée la structure exacte indispensable à notre CSS
       const navContainer = document.createElement('div');
       navContainer.className = 'header block';
       navContainer.innerHTML = `<div><div>${html}</div></div>`;
       
-      // On vide le bloc actuel et on injecte le menu
+      // On nettoie le bloc actuel et on injecte la barre
       block.textContent = '';
       block.appendChild(navContainer);
     } else {
-      console.error('Impossible de récupérer le fragment /nav');
+      console.error('Erreur de réponse lors du fetch du nav.plain.html');
     }
   } catch (error) {
-    console.error('Erreur lors de la récupération de la navigation :', error);
+    console.error('Erreur réseau lors de la récupération de la navigation :', error);
   }
 }
