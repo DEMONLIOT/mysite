@@ -4,7 +4,7 @@
 (async function forceGlobalHeader() {
   try {
     // 1. URL absolue de ton menu
-    const projectUrl = 'https://main--NOM-DE-TON-DEPOT--NOM-DE-TON-ORGANISATION.hlx.page/nav.plain.html';
+    const projectUrl = 'https://main--mysite--demonliot.hlx.page/nav.plain.html';
     
     // 2. On télécharge le menu immédiatement
     const response = await fetch(projectUrl);
