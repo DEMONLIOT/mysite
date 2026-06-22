@@ -1,26 +1,121 @@
 /* ==========================================================================
-   INJECTION ULTRA-PRIORITAIRE HORS PIPELINE AEM (ANTI-BUG PAGES SECONDAIRES)
+   INJECTION ABSOLUE : HTML + CSS EMBARQUÉ (BARRE HORIZONTALE UNIVERSELLE)
    ========================================================================== */
-(async function forceGlobalHeader() {
+(async function forcePerfectHeader() {
   try {
-    // 1. URL absolue de ton menu
+    // 1. URL absolue de ta navigation brute
     const projectUrl = 'https://main--mysite--demonliot.hlx.page/nav.plain.html';
     
-    // 2. On télécharge le menu immédiatement
     const response = await fetch(projectUrl);
     if (!response.ok) return;
     const html = await response.text();
 
-    // 3. On attend que la page soit prête pour injecter
     const inject = () => {
+      // 2. Injection des styles CSS directement dans la page pour éviter les 404 d'AEM
+      if (!document.getElementById('forced-header-styles')) {
+        const styleTag = document.createElement('style');
+        styleTag.id = 'forced-header-styles';
+        styleTag.textContent = `
+          .header-wrapper {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            background-color: #ffffff !important;
+            z-index: 10000 !important;
+            border-bottom: 1px solid #e0e0e0 !important;
+            box-sizing: border-box !important;
+          }
+          body { padding-top: 80px !important; }
+          .header-wrapper .header.block,
+          .header-wrapper .header.block > div,
+          .header-wrapper .header.block > div > div {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            justify-content: flex-start !important;
+            align-items: center !important;
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            box-sizing: border-box !important;
+          }
+          .header-wrapper .header.block > div > div { padding: 0 30px !important; }
+          .header-wrapper .header.block > div > div > ul {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            list-style: none !important;
+          }
+          .header-wrapper .header.block > div > div > ul > li {
+            position: relative !important;
+            display: inline-block !important;
+            padding: 20px 25px !important;
+            margin: 0 !important;
+            font-family: sans-serif !important;
+            font-weight: 600 !important;
+            font-size: 16px !important;
+            color: #222222 !important;
+            cursor: pointer !important;
+            white-space: nowrap !important;
+          }
+          .header-wrapper .header.block > div > div > ul > li a {
+            color: #222222 !important;
+            text-decoration: none !important;
+          }
+          .header-wrapper .header.block > div > div > ul > li:has(ul)::after {
+            content: " ▼" !important;
+            font-size: 10px !important;
+            color: #888888 !important;
+          }
+          .header-wrapper .header.block > div > div > ul > li ul {
+            display: none !important;
+            position: absolute !important;
+            top: 100% !important;
+            left: 0 !important;
+            flex-direction: column !important;
+            background-color: #ffffff !important;
+            border: 1px solid #e0e0e0 !important;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15) !important;
+            padding: 10px 0 !important;
+            margin: 0 !important;
+            min-width: 220px !important;
+            border-radius: 4px !important;
+            z-index: 10005 !important;
+            list-style: none !important;
+          }
+          .header-wrapper .header.block > div > div > ul > li ul li {
+            display: block !important;
+            width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            font-weight: normal !important;
+          }
+          .header-wrapper .header.block > div > div > ul > li ul li::after { content: "" !important; }
+          .header-wrapper .header.block > div > div > ul > li ul li a {
+            display: block !important;
+            padding: 8px 20px !important;
+            color: #444444 !important;
+            text-decoration: none !important;
+            font-size: 14px !important;
+            text-align: left !important;
+          }
+          .header-wrapper .header.block > div > div > ul > li:hover ul { display: flex !important; }
+          .header-wrapper .header.block > div > div > ul > li ul li:hover { background-color: #f5f5f5 !important; }
+        `;
+        document.head.appendChild(styleTag);
+      }
+
+      // 3. Injection du HTML
       let header = document.querySelector('header');
       if (!header) {
-        // Si la balise <header> n'existe pas encore, on la crée à la volée tout en haut du body
         header = document.createElement('header');
         document.body.insertBefore(header, document.body.firstChild);
       }
       
-      // Injection de la structure exacte pour ton CSS
       header.innerHTML = `
         <div class="header-wrapper">
           <div class="header block">
@@ -30,9 +125,6 @@
           </div>
         </div>
       `;
-      
-      // On force la marge sur le body pour éviter que le texte passe sous la barre fixe
-      document.body.style.paddingTop = '80px';
     };
 
     if (document.readyState === 'loading') {
@@ -41,13 +133,16 @@
       inject();
     }
   } catch (e) {
-    console.error('Erreur injection prioritaire header:', e);
+    console.error('Erreur script injection header global:', e);
   }
 })();
 
 /* ==========================================================================
-   RESTE DE TON FICHIER SCRIPTS.JS (LAISSE LE CODE SUIVANT INTACT)
+   RESTE DE TON FICHIER SCRIPTS.JS INTEGRAL (LAISSE LA SUITE DU CODE INTACTE)
    ========================================================================== */
+import {
+  loadHeader,
+...
 import {
   loadHeader,
   loadFooter,
