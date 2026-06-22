@@ -159,9 +159,10 @@ async function loadEager(doc) {
  * @param {Element} doc The container element
  */
 async function loadLazy(doc) {
-  // 1. Charger le Header de manière native sur toutes les pages
+  // 1. Charger le Header de manière native sur toutes les pages en forçant son nom de bloc
   const headerElement = doc.querySelector('header');
   if (headerElement) {
+    headerElement.setAttribute('data-block-name', 'header'); // FORCE le bloc à s'identifier partout
     await loadHeader(headerElement);
   }
 
