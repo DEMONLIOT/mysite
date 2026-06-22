@@ -88,22 +88,19 @@ function decorateButtons(main) {
     const p = a.closest('p');
     const text = a.textContent.trim();
 
-    // quick structural checks
     if (a.querySelector('img') || p.textContent.trim() !== text) return;
 
-    // skip URL display links
     try {
       if (new URL(a.href).href === new URL(text, window.location).href) return;
     } catch { /* continue */ }
 
-    // require authored formatting for buttonization
     const strong = a.closest('strong');
     const em = a.closest('em');
     if (!strong && !em) return;
 
     p.className = 'button-wrapper';
     a.className = 'button';
-    if (strong && em) { // high-impact call-to-action
+    if (strong && em) {
       a.classList.add('accent');
       const outer = strong.contains(em) ? strong : em;
       outer.replaceWith(a);
@@ -117,11 +114,6 @@ function decorateButtons(main) {
   });
 }
 
-/**
- * Decorates the main element.
- * @param {Element} main The main element
- */
-// eslint-disable-next-line import/prefer-default-export
 export function decorateMain(main) {
   decorateIcons(main);
   buildAutoBlocks(main);
@@ -130,10 +122,6 @@ export function decorateMain(main) {
   decorateButtons(main);
 }
 
-/**
- * Loads everything needed to get to LCP.
- * @param {Element} doc The container element
- */
 async function loadEager(doc) {
   document.documentElement.lang = 'en';
   decorateTemplateAndTheme();
@@ -145,7 +133,6 @@ async function loadEager(doc) {
   }
 
   try {
-    /* if desktop (proxy for fast connection) or fonts already loaded, load fonts.css */
     if (window.innerWidth >= 900 || sessionStorage.getItem('fonts-loaded')) {
       loadFonts();
     }
@@ -155,29 +142,49 @@ async function loadEager(doc) {
 }
 
 /**
- * Loads everything that doesn't need to be delayed.
- * @param {Element} doc The container element
+ * INJECTION AUTONOME DU HEADER SUR TOUTES LES PAGES
  */
 async function loadLazy(doc) {
-  // 1. Charger le Header de manière native sur toutes les pages en forçant son nom de bloc
   const headerElement = doc.querySelector('header');
   if (headerElement) {
-    headerElement.setAttribute('data-block-name', 'header'); // FORCE le bloc à s'identifier partout
-    await loadHeader(headerElement);
+    try {
+      // 1. Charger de force le CSS
+      await loadCSS(`${window.hlx.codeBasePath}/blocks/header/header.css`);
+
+      // 2. Fetch direct de la navigation absolue sans passer par AEM
+      const projectUrl = 'https://main--mysite--demonliot.hlx.page/nav.plain.html';
+      const response = await fetch(projectUrl);
+      
+      if (response.ok) {
+        const html = await response.text();
+        
+        // 3. On injecte la structure brute attendue par le CSS
+        headerElement.innerHTML = `
+          <div class="header-wrapper">
+            <div class="header block">
+              <div>
+                <div>${html}</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    } catch (error) {
+      console.error('Échec de l injection autonome du menu :', error);
+    }
   }
 
-  // 2. Charger le contenu principal
+  // Charger le contenu de la page
   const main = doc.querySelector('main');
   if (main) {
     await loadSections(main);
   }
 
-  // 3. Gestion de l'ancrage
   const { hash } = window.location;
   const element = hash ? doc.getElementById(hash.substring(1)) : false;
   if (hash && element) element.scrollIntoView();
 
-  // 4. Charger le Footer
+  // Charger le Footer
   const footerElement = doc.querySelector('footer');
   if (footerElement) {
     await loadFooter(footerElement);
@@ -187,12 +194,7 @@ async function loadLazy(doc) {
   loadFonts();
 }
 
-/**
- * Loads everything that happens a lot later,
- * without impacting the user experience.
- */
 function loadDelayed() {
-  // eslint-disable-next-line import/no-cycle
   window.setTimeout(() => import('./delayed.js'), 3000);
 }
 
