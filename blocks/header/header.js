@@ -1,32 +1,32 @@
 import { loadCSS } from '../../scripts/aem.js';
 
 /**
- * Charge le menu global directement depuis le serveur de preview absolu d'AEM
+ * Charge le menu global à partir du fichier HTML brut de ton projet
  * @param {Element} block Le conteneur du bloc header
  */
 export default async function decorate(block) {
-  // 1. Charger de force le CSS dédié au header
+  // 1. On force le chargement du fichier CSS du header
   await loadCSS(`${window.hlx.codeBasePath}/blocks/header/header.css`);
 
-  // 2. Récupérer le HTML brut via l'URL de preview de ton projet
+  // 2. On va chercher le fichier de navigation généré par AEM
   try {
-    // ⚠️ REMPLACE "TON-DEPOT" ET "TON-ORGANISATION" PAR TES VRAIES INFOS DE SIDEKICK
+    // RECOPIE BIEN TON URL DE SIDEKICK ICI (ex: main--mon-site--mon-orga.hlx.page)
     const projectUrl = 'https://main--mysite--demonliot.hlx.page/nav.plain.html';
     
     const response = await fetch(projectUrl);
     if (response.ok) {
       const html = await response.text();
       
-      // On recrée la structure exacte indispensable à notre CSS
+      // On crée la structure de conteneurs nécessaire
       const navContainer = document.createElement('div');
       navContainer.className = 'header block';
       navContainer.innerHTML = `<div><div>${html}</div></div>`;
       
-      // On nettoie le bloc actuel et on injecte la barre
+      // On vide l'ancien contenu et on injecte le nouveau HTML propre
       block.textContent = '';
       block.appendChild(navContainer);
     } else {
-      console.error('Erreur de réponse lors du fetch du nav.plain.html');
+      console.error('Erreur de chargement du fichier nav.plain.html');
     }
   } catch (error) {
     console.error('Erreur réseau lors de la récupération de la navigation :', error);
