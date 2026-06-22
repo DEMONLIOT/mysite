@@ -159,7 +159,21 @@ async function loadEager(doc) {
  * @param {Element} doc The container element
  */
 async function loadLazy(doc) {
-  const headerElement = doc.querySelector('header');
+  let headerElement = doc.querySelector('header');
+  
+  // Si la balise <header> est absente sur une page secondaire, on la génère
+  if (!headerElement) {
+    headerElement = document.createElement('header');
+    doc.body.insertBefore(headerElement, doc.body.firstChild);
+  }
+
+  // Si l'élément est vide ou n'a pas été initialisé comme bloc par AEM, on le force
+  if (headerElement && !headerElement.querySelector('.header')) {
+    const headerBlock = buildBlock('header', '');
+    headerElement.append(headerBlock);
+    decorateBlocks(headerElement);
+  }
+
   if (headerElement) {
     await loadHeader(headerElement);
   }
