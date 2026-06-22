@@ -11,7 +11,7 @@ export default async function decorate(block) {
   // 2. Récupérer le HTML brut via l'URL de preview de ton projet
   try {
     // ⚠️ REMPLACE "TON-DEPOT" ET "TON-ORGANISATION" PAR TES VRAIES INFOS DE SIDEKICK
-    const projectUrl = 'https://main--TON-DEPOT--TON-ORGANISATION.hlx.page/nav.plain.html';
+    const projectUrl = 'https://main--mysite--demonliot.hlx.page/nav.plain.html';
     
     const response = await fetch(projectUrl);
     if (response.ok) {
