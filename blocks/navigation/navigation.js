@@ -1,32 +1,14 @@
 document.addEventListener("DOMContentLoaded", function() {
-    
-    // On ajoute l'ID unique "eva-projet-nav" pour isoler notre menu
-    const menuHTML = `
-        <nav id="eva-projet-nav" class="nav-container">
-            <ul class="nav-menu">
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Accueil</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Partie 1 ▾</a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">Sous-partie 1.1</a></li>
-                        <li><a href="#">Sous-partie 1.2</a></li>
-                    </ul>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Partie 2 ▾</a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">Sous-partie 2.1</a></li>
-                    </ul>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Contact</a>
-                </li>
-            </ul>
-        </nav>
-    `;
+    // On cherche le tableau que tu as créé pour le menu en mode édit
+    // Souvent, AEM met les composants dans un conteneur principal. On cible le premier tableau trouvé.
+    const editTable = document.querySelector("table");
 
-    // Injection au tout début du site
-    document.body.insertAdjacentHTML('afterbegin', menuHTML);
+    if (editTable) {
+        // On enveloppe ton tableau dans notre ID sécurisé pour ne pas toucher aux autres tableaux du site
+        const wrapper = document.createElement("div");
+        wrapper.id = "eva-projet-nav";
+        
+        editTable.parentNode.insertBefore(wrapper, editTable);
+        wrapper.appendChild(editTable);
+    }
 });
