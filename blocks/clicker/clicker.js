@@ -4,7 +4,7 @@ let puissanceClic = 1;
 let pointsParSeconde = 0;
 
 let prixMultiplicateur = 50;
-let prixAutoclicker = 1000000000000; // 1 000 milliards
+let prixAutoclicker = 1000000000000; // Exactement 1 000 milliards (sans espaces)
 
 // --- SÉLECTION DES ÉLÉMENTS HTML ---
 const affichageScore = document.getElementById('score');
@@ -21,6 +21,7 @@ const affichageVitesseAuto = document.getElementById('vitesseAuto');
 // --- 1. LE CLIC PRINCIPAL ---
 boutonClic.addEventListener('click', () => {
   score += puissanceClic; 
+  // Arrondi à l'entier inférieur pour éviter les bugs visuels dus aux 0.5
   affichageScore.textContent = Math.floor(score); 
 });
 
@@ -29,10 +30,10 @@ btnMulti.addEventListener('click', () => {
   if (score >= prixMultiplicateur) {
     score -= prixMultiplicateur; 
     
-    puissanceClic += 0.5; // Augmente de 0.5
+    puissanceClic += 0.5; // Augmente proprement de 0.5 à chaque fois
     prixMultiplicateur = Math.floor(prixMultiplicateur * 2); // Le prix double
     
-    // Mise à jour de l'écran
+    // Mise à jour de l'interface
     affichageScore.textContent = Math.floor(score);
     affichagePrixMulti.textContent = prixMultiplicateur;
     affichagePuissance.textContent = puissanceClic; 
@@ -45,11 +46,11 @@ btnMulti.addEventListener('click', () => {
 btnAuto.addEventListener('click', () => {
   if (score >= prixAutoclicker) {
     score -= prixAutoclicker; 
-    pointsParSeconde += 500000; // Donne +500 000 points/sec
+    pointsParSeconde += 500000; // Ajoute un énorme bonus passif (+500 000/sec)
     
-    prixAutoclicker = Math.floor(prixAutoclicker * 3.5);
+    prixAutoclicker = Math.floor(prixAutoclicker * 3.5); // Le prix augmente drastiquement
     
-    // Mise à jour de l'écran
+    // Mise à jour de l'interface avec séparateur de milliers lisible
     affichageScore.textContent = Math.floor(score);
     affichagePrixAuto.textContent = prixAutoclicker.toLocaleString(); 
     affichageVitesseAuto.textContent = pointsParSeconde;
