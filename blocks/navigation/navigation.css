@@ -1,44 +1,52 @@
-/* --- TOUT EST VERROUILLÉ DIÈRE #eva-projet-nav --- */
-
+/* --- LE CONTENEUR SÉCURISÉ --- */
 #eva-projet-nav {
     width: 100% !important;
-    display: block !important;
     background-color: #333 !important;
-    clear: both !important;
-    float: none !important;
+    margin-bottom: 20px !important;
 }
 
-/* Force la ligne horizontale uniquement pour NOTRE menu */
-#eva-projet-nav .nav-menu {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    list-style: none !important;
+/* --- FORCER LE TABLEAU EN MODE NAVIGATION --- */
+#eva-projet-nav table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    border: none !important;
+    background-color: #333 !important;
     margin: 0 !important;
     padding: 0 !important;
-    background-color: #333 !important;
 }
 
-#eva-projet-nav .nav-item {
+#eva-projet-nav tr {
+    display: flex !important; /* Force les lignes à devenir flexibles */
+    flex-direction: row !important; /* Aligne tout à l'horizontale */
+    justify-content: flex-start !important;
+}
+
+/* Chaque case (cellule) du tableau devient un bouton du menu */
+#eva-projet-nav td {
     position: relative !important;
-    display: inline-block !important;
-    float: none !important;
+    padding: 0 !important;
+    border: none !important;
 }
 
-#eva-projet-nav .nav-link {
+/* Style des liens ou textes dans le tableau */
+#eva-projet-nav td a, 
+#eva-projet-nav td p {
     display: block !important;
     color: white !important;
     text-decoration: none !important;
     padding: 15px 20px !important;
+    margin: 0 !important;
+    font-family: sans-serif !important;
 }
 
-#eva-projet-nav .nav-link:hover {
+#eva-projet-nav td:hover {
     background-color: #555 !important;
 }
 
-/* --- LE MENU DÉROULANT ISOLÉ --- */
-#eva-projet-nav .dropdown-menu {
-    display: none !important;
+/* --- GESTION DU DÉROULANT SI TU AS DES LISTES DEDANS --- */
+/* Si tu as imbriqué une liste pour le sous-menu dans une cellule du tableau */
+#eva-projet-nav td ul {
+    display: none !important; /* Caché par défaut */
     position: absolute !important;
     top: 100% !important;
     left: 0 !important;
@@ -51,23 +59,21 @@
     z-index: 9999 !important;
 }
 
-#eva-projet-nav .dropdown-menu li {
+#eva-projet-nav td ul li {
     display: block !important;
     width: 100% !important;
 }
 
-#eva-projet-nav .dropdown-menu li a {
+#eva-projet-nav td ul li a {
     color: #333 !important;
     padding: 10px 20px !important;
-    display: block !important;
-    text-decoration: none !important;
 }
 
-#eva-projet-nav .dropdown-menu li a:hover {
+#eva-projet-nav td ul li a:hover {
     background-color: #f1f1f1 !important;
 }
 
-/* Affichage au survol */
-#eva-projet-nav .nav-item:hover .dropdown-menu {
+/* Affichage du déroulant au survol de la cellule du tableau */
+#eva-projet-nav td:hover ul {
     display: block !important;
 }
