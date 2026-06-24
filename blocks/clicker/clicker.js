@@ -1,3 +1,10 @@
 let score = 0;
-console.log("test le script fonctionne");
-alert("Hello");
+let puissanceClic = 1;
+
+const affichageScore = document.getElementById('score');
+const boutonClic = document.getElementById('boutonClic');
+
+boutonClic.addEventListener('click', () =>{
+  score += puissanceClic;
+  affichageScore.textContent = score;
+});
