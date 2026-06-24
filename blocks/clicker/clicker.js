@@ -1,52 +1,67 @@
-export default function decorate(block) {
-  // --- 1. TES COMPTEURS (Les variables de stockage) ---
-  let pointsParClic = 1;
-  let score = 0;
-  const scoreSauvegarde=localStorage.getItem('clickerScore')
-if (scoreSauvegarde) {
-  score=parseInt(scoreSauvegarde,10);
-  }else{ 
-  score=0
-}
+// --- VARIABLES DE BASE ---
+let score = 0;
+let puissanceClic = 1; 
+let pointsParSeconde = 0;
 
-  // --- 2. L'AFFICHAGE (Ce que le joueur voit à l'écran) ---
-  const scoreDisplay = document.createElement('h2');
-  scoreDisplay.textContent = "Score :"+score;
-  scoreDisplay.style.fontSize = "2rem";
+let prixMultiplicateur = 50;
+let prixAutoclicker = 1000000000000; // 1 000 milliards
 
-  const clickButton = document.createElement('button');
-  clickButton.textContent = "🍪 CLIQUE !";
-  clickButton.style.fontSize = "3rem";
-  clickButton.style.padding = "20px";
-  clickButton.style.cursor = "pointer";
+// --- SÉLECTION DES ÉLÉMENTS HTML ---
+const affichageScore = document.getElementById('score');
+const boutonClic = document.getElementById('boutonClic');
 
-  const upgradeButton = document.createElement('button');
-  upgradeButton.textContent = "🚀 Multiplicateur (+1 par clic) | Coût : 15";
-  upgradeButton.style.fontSize = "1.5rem";
-  upgradeButton.style.marginTop = "10px";
-  upgradeButton.style.cursor = "pointer";
+const btnMulti = document.getElementById('btnMulti');
+const affichagePrixMulti = document.getElementById('prixMulti');
+const affichagePuissance = document.getElementById('puissance');
 
-  // --- 3. L'ASSEMBLAGE (On met tout dans la page web) ---
-  block.innerHTML = '';
-  block.append(scoreDisplay, clickButton, upgradeButton);
+const btnAuto = document.getElementById('btnAuto');
+const affichagePrixAuto = document.getElementById('prixAuto');
+const affichageVitesseAuto = document.getElementById('vitesseAuto');
 
-  // --- 4. LA ZONE DE JEU (C'est là que tu codes !) ---
-  clickButton.addEventListener('click', () => {
-    score=score+pointsParClic
-    // ÉTAPE 1 : Écris la ligne pour augmenter le score
-    scoreDisplay.textContent="Score:"+score
-    // ÉTAPE 2 : Écris la ligne pour mettre à jour le texte affiché à l'écran
-localStorage.setItem('clickerScore', score);
-  });
-  upgradeButton.addEventListener('click', () => {
-    if (score>=15){
-    score=score-15
-    pointsParClic=pointsParClic+1
-    
-    scoreDisplay.textContent=("Score:")+score
-    localStorage.setItem('clickerScore', score);
-}else{
-                                 alert("Pas assez de cookies ! 😢");
-   } 
+// --- 1. LE CLIC PRINCIPAL ---
+boutonClic.addEventListener('click', () => {
+  score += puissanceClic; 
+  affichageScore.textContent = Math.floor(score); 
 });
+
+// --- 2. ACHAT DU MULTIPLICATEUR ---
+btnMulti.addEventListener('click', () => {
+  if (score >= prixMultiplicateur) {
+    score -= prixMultiplicateur; 
+    
+    puissanceClic += 0.5; // Augmente de 0.5
+    prixMultiplicateur = Math.floor(prixMultiplicateur * 2); // Le prix double
+    
+    // Mise à jour de l'écran
+    affichageScore.textContent = Math.floor(score);
+    affichagePrixMulti.textContent = prixMultiplicateur;
+    affichagePuissance.textContent = puissanceClic; 
+  } else {
+    alert("Pas assez de points ! Continue de cliquer !");
   }
+});
+
+// --- 3. ACHAT DE L'AUTOCLICKER ULTRA ---
+btnAuto.addEventListener('click', () => {
+  if (score >= prixAutoclicker) {
+    score -= prixAutoclicker; 
+    pointsParSeconde += 500000; // Donne +500 000 points/sec
+    
+    prixAutoclicker = Math.floor(prixAutoclicker * 3.5);
+    
+    // Mise à jour de l'écran
+    affichageScore.textContent = Math.floor(score);
+    affichagePrixAuto.textContent = prixAutoclicker.toLocaleString(); 
+    affichageVitesseAuto.textContent = pointsParSeconde;
+  } else {
+    alert("C'est beaucoup trop cher pour toi... Il te faut 1 000 milliards de clics !");
+  }
+});
+
+// --- 4. LA BOUCLE DE L'AUTOCLICKER (Toutes les secondes) ---
+setInterval(() => {
+  if (pointsParSeconde > 0) {
+    score += pointsParSeconde; 
+    affichageScore.textContent = Math.floor(score); 
+  }
+}, 1000);
