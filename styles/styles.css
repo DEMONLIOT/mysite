@@ -1,250 +1,61 @@
-/* ==========================================================================
-   ALIGNEMENT HORIZONTAL STRICT ET DEPLOYMENT DE TOUTES LES SOUS-PARTIES
-   ========================================================================== */
-
-/* 1. Fixer l'en-tête tout en haut */
-.header-wrapper {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100% !important;
-  background-color: #ffffff !important;
-  z-index: 10000 !important;
-  border-bottom: 1px solid #e0e0e0 !important;
+/* Réinitialisation de base pour la navigation */
+.nav-container {
+    width: 100%;
+    background-color: #333; /* Un gris foncé standard */
+    font-family: sans-serif;
 }
 
-body {
-  padding-top: 80px !important;
+/* La liste principale s'affiche à l'horizontale */
+.nav-menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex; /* Aligne les éléments côte à côte */
+    flex-direction: row;
 }
 
-/* 2. Ouvrir les conteneurs d'AEM de gauche à droite */
-.header-wrapper .header.block,
-.header-wrapper .header.block > div,
-.header-wrapper .header.block > div > div {
-  display: flex !important;
-  flex-direction: row !important;
-  flex-wrap: nowrap !important;
-  justify-content: flex-start !important;
-  align-items: center !important;
-  width: 100% !important;
-  max-width: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  box-sizing: border-box !important;
+/* Style des liens principaux */
+.nav-item {
+    position: relative;
 }
 
-.header-wrapper .header.block > div > div {
-  padding: 0 30px !important;
+.nav-link {
+    display: block;
+    color: white;
+    text-decoration: none;
+    padding: 15px 20px;
 }
 
-/* 3. UNIQUEMENT la liste principale à l'horizontale */
-.header-wrapper .header.block > div > div > ul {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  list-style: none !important;
+.nav-link:hover {
+    background-color: #555;
 }
 
-/* Style de chaque grand onglet principal */
-.header-wrapper .header.block > div > div > ul > li {
-  position: relative !important;
-  display: inline-block !important;
-  padding: 20px 25px !important; /* Padding vertical étendu pour coller le menu au dropdown */
-  margin: 0 !important;
-  font-family: sans-serif !important;
-  font-weight: 600 !important;
-  font-size: 16px !important;
-  color: #222222 !important;
-  cursor: pointer !important;
-  white-space: nowrap !important;
+/* --- SOUS-MENU (Caché par défaut) --- */
+.dropdown-menu {
+    display: none; /* Caché au départ */
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    list-style: none;
+    padding: 10px 0;
+    margin: 0;
+    box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+    min-width: 150px;
 }
 
-.header-wrapper .header.block > div > div > ul > li a {
-  color: #222222 !important;
-  text-decoration: none !important;
+.dropdown-menu li a {
+    color: #333;
+    padding: 8px 20px;
+    display: block;
+    text-decoration: none;
 }
 
-/* Ajouter la flèche ▼ uniquement sur les catégories avec sous-menu */
-.header-wrapper .header.block > div > div > ul > li:has(ul)::after {
-  content: " ▼" !important;
-  font-size: 10px !important;
-  color: #888888 !important;
+.dropdown-menu li a:hover {
+    background-color: #f1f1f1;
 }
 
-/* 4. FORCE LE SOUS-MENU (NIVEAU 2) À REPASSER À LA VERTICALE */
-.header-wrapper .header.block > div > div > ul > li ul {
-  display: none !important; /* Masqué par défaut */
-  position: absolute !important;
-  top: 100% !important; /* Collé pile au ras du padding du dessus */
-  left: 0 !important;
-  
-  /* L'élément clé : Forcer la direction en colonne pour voir TOUTES les interviews */
-  flex-direction: column !important; 
-  
-  background-color: #ffffff !important;
-  border: 1px solid #e0e0e0 !important;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.15) !important;
-  padding: 10px 0 !important;
-  margin: 0 !important; /* CRITIQUE : 0 marge pour empêcher le menu de se fermer brusquement */
-  min-width: 220px !important;
-  border-radius: 4px !important;
-  z-index: 10005 !important;
-  list-style: none !important;
-}
-
-/* Forcer chaque sous-élément d'interview à s'empiler verticalement */
-.header-wrapper .header.block > div > div > ul > li ul li {
-  display: block !important;
-  width: 100% !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  font-weight: normal !important;
-}
-
-/* Nettoyer les flèches héritées dans le sous-menu */
-.header-wrapper .header.block > div > div > ul > li ul li::after {
-  content: "" !important;
-}
-
-.header-wrapper .header.block > div > div > ul > li ul li a {
-  display: block !important;
-  padding: 8px 20px !important;
-  color: #444444 !important;
-  text-decoration: none !important;
-  font-size: 14px !important;
-  text-align: left !important;
-}
-
-/* 5. HOVER CONDITIONS */
-.header-wrapper .header.block > div > div > ul > li:hover ul {
-  display: flex !important; /* Rendre visible le bloc au survol */
-}
-
-.header-wrapper .header.block > div > div > ul > li ul li:hover {
-  background-color: #f5f5f5 !important;
-}
-/* ==========================================================================
-   NETTOYAGE ABSOLU ET ALIGNEMENT HORIZONTAL UNIVERSEL (STYLES.CSS)
-   ========================================================================== */
-
-/* 1. Blocage de l'en-tête tout en haut */
-header,
-.header-wrapper,
-.header.block {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100% !important;
-  height: 70px !important;
-  background-color: #ffffff !important;
-  z-index: 99999 !important;
-  border-bottom: 1px solid #e0e0e0 !important;
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  box-sizing: border-box !important;
-}
-
-body {
-  padding-top: 70px !important;
-}
-
-/* 2. Forcer TOUS les conteneurs directs à se coucher à l'horizontale */
-header nav,
-header .header,
-header div,
-.header-wrapper div,
-.header-wrapper nav {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  list-style: none !important;
-}
-
-/* 3. Ciblage de la liste principale : alignement horizontal strict et suppression des puces */
-header ul,
-.header-wrapper ul {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  list-style: none !important;
-  list-style-type: none !important;
-}
-
-/* Suppression des puces sur tous les éléments de liste */
-header li,
-.header-wrapper li {
-  list-style: none !important;
-  list-style-type: none !important;
-  position: relative !important;
-}
-
-/* Onglets principaux */
-header > div > div > ul > li,
-.header-wrapper > div > div > ul > li,
-header ul > li {
-  display: inline-block !important;
-  padding: 15px 20px !important;
-  font-family: sans-serif !important;
-  font-weight: bold !important;
-  font-size: 16px !important;
-  white-space: nowrap !important;
-}
-
-header ul > li a,
-.header-wrapper ul > li a {
-  color: #222222 !important;
-  text-decoration: none !important;
-}
-
-/* 4. SYSTÈME DÉROULANT UNIVERSEL (NIVEAU 2) */
-
-/* On cache TOUTES les listes secondaires / imbriquées par défaut */
-header ul li ul,
-.header-wrapper ul li ul,
-header li div:has(ul) {
-  display: none !important;
-  position: absolute !important;
-  top: 100% !important;
-  left: 0 !important;
-  background-color: #ffffff !important;
-  border: 1px solid #e0e0e0 !important;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
-  min-width: 200px !important;
-  padding: 10px 0 !important;
-  z-index: 100000 !important;
-}
-
-/* Forcer l'affichage vertical UNIQUEMENT à l'intérieur du sous-menu */
-header ul li ul li,
-.header-wrapper ul li ul li {
-  display: block !important;
-  width: 100% !important;
-  padding: 0 !important;
-}
-
-header ul li ul li a,
-.header-wrapper ul li ul li a {
-  display: block !important;
-  padding: 8px 20px !important;
-  font-weight: normal !important;
-  font-size: 14px !important;
-}
-
-/* 5. LE SURVOL (HOVER) */
-header ul li:hover > ul,
-.header-wrapper ul li:hover > ul {
-  display: flex !important;
-  flex-direction: column !important; /* Les sous-pages s'empilent enfin verticalement */
-}
-
-header ul li ul li:hover,
-.header-wrapper ul li ul li:hover {
-  background-color: #f5f5f5 !important;
+/* Affiche le sous-menu quand on passe la souris sur l'élément parent */
+.nav-item:hover .dropdown-menu {
+    display: block;
 }
