@@ -1,91 +1,93 @@
-/* --- SÉCURITÉ : ON COUCHE TOUT À L'HORIZONTALE --- */
+/* ==========================================================================
+   BARRE DE NAVIGATION HORIZONTALE ÉTANCHE (UNIQUEMENT POUR LE PROJET D'EVA)
+   ========================================================================== */
 
-/* On force TOUS les tableaux de ton menu à s'aligner */
-#eva-projet-nav-direct, 
-#eva-projet-nav-direct table, 
-#eva-projet-nav-direct tbody {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
+/* Le bandeau noir tout en haut */
+#eva-projet-nav {
     width: 100% !important;
-    background-color: #333 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-}
-
-/* On force la ligne du tableau à devenir un conteneur horizontal */
-#eva-projet-nav-direct tr {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-/* Chaque case du tableau se met l'une à côté de l'autre */
-#eva-projet-nav-direct td {
-    display: block !important;
+    background-color: #222222 !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3) !important;
     position: relative !important;
-    flex: 1 1 auto !important;
-    white-space: nowrap !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border: none !important;
+    z-index: 999999 !important; /* Passe au-dessus de tout le reste */
+    font-family: sans-serif !important;
 }
 
-/* Style des liens textuels */
-#eva-projet-nav-direct td a,
-#eva-projet-nav-direct td p {
+/* La liste principale qui aligne les boutons de gauche à droite */
+#eva-projet-nav .nav-menu {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    list-style: none !important;
+}
+
+/* Chaque bouton du menu */
+#eva-projet-nav .nav-item {
+    position: relative !important; /* Important pour caler le sous-menu en dessous */
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Le style des textes cliquables */
+#eva-projet-nav .nav-link {
     display: block !important;
     color: #ffffff !important;
     text-decoration: none !important;
-    padding: 15px 20px !important;
-    margin: 0 !important;
-    font-family: sans-serif !important;
+    padding: 18px 25px !important;
     font-weight: bold !important;
-    text-align: center !important;
+    font-size: 15px !important;
+    transition: background-color 0.2s ease !important;
 }
 
-/* Effet de survol */
-#eva-projet-nav-direct td:hover {
-    background-color: #555555 !important;
+/* Changement de couleur quand la souris passe dessus */
+#eva-projet-nav .nav-link:hover {
+    background-color: #444444 !important;
 }
 
-/* --- LE MENU DÉROULANT (SI TU AS UN 'UL' DANS LE TD) --- */
-#eva-projet-nav-direct td ul {
-    display: none !important;
+/* ==========================================================================
+   SYSTÈME DE MENU DÉROULANT
+   ========================================================================== */
+
+/* Le sous-menu (caché par défaut) */
+#eva-projet-nav .dropdown-menu {
+    display: none !important; /* Totalement invisible au départ */
     position: absolute !important;
-    top: 100% !important;
+    top: 100% !important; /* S'aligne pile sous le bouton principal */
     left: 0 !important;
     background-color: #ffffff !important;
-    list-style: none !important;
+    min-width: 180px !important;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.2) !important;
     padding: 5px 0 !important;
     margin: 0 !important;
-    box-shadow: 0px 4px 10px rgba(0,0,0,0.2) !important;
-    min-width: 160px !important;
-    z-index: 99999 !important;
-    flex-direction: column !important; /* Les sous-menus restent verticaux, eux ! */
+    list-style: none !important;
+    border-radius: 0 0 4px 4px !important;
 }
 
-#eva-projet-nav-direct td ul li {
+/* Les éléments à l'intérieur du menu déroulant (alignés à la verticale) */
+#eva-projet-nav .dropdown-menu li {
     display: block !important;
     width: 100% !important;
 }
 
-#eva-projet-nav-direct td ul li a {
+/* Les liens du menu déroulant */
+#eva-projet-nav .dropdown-menu li a {
+    display: block !important;
     color: #333333 !important;
-    padding: 10px 20px !important;
+    padding: 12px 20px !important;
+    text-decoration: none !important;
+    font-size: 14px !important;
     font-weight: normal !important;
-    text-align: left !important;
+    transition: background-color 0.15s ease !important;
 }
 
-#eva-projet-nav-direct td ul li a:hover {
-    background-color: #f1f1f1 !important;
+/* Hover sur les liens du sous-menu */
+#eva-projet-nav .dropdown-menu li a:hover {
+    background-color: #f5f5f5 !important;
+    color: #000000 !important;
 }
 
-/* Affichage au survol */
-#eva-projet-nav-direct td:hover ul {
-    display: flex !important;
+/* LA MAGIE : Quand la souris survol le bouton (.nav-item), on affiche le sous-menu */
+#eva-projet-nav .nav-item:hover .dropdown-menu {
+    display: block !important;
 }
