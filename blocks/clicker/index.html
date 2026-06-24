@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mon Clicker Game</title>
+  <link rel="stylesheet" href="clicker.css">
+</head>
+<body>
+
+  <div class="jeu">
+    <h1>Score : <span id="score">0</span></h1>
+    
+    <button id="boutonClic">CLIQUE ICI !</button>
+    
+    <div class="boutique">
+      <h3>Boutique</h3>
+      
+      <button id="btnMulti">Acheter Multiplicateur (Prix: <span id="prixMulti">50</span>)</button>
+      <p>Chaque clic donne : +<span id="puissance">1</span> points</p>
+      
+      <button id="btnAuto">Acheter Auto-Clicker ULTRA (Prix: <span id="prixAuto">1 000 000 000 000</span>)</button>
+      <p>Gain passif : +<span id="vitesseAuto">0</span>/seconde</p>
+    </div>
+  </div>
+
+  <script src="clicker.js"></script>
+</body>
+</html>
