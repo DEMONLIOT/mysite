@@ -1,1 +1,1 @@
-
+alert("Fichier nettoyé");
