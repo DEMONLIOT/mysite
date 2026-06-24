@@ -1,35 +1,31 @@
-/* --- EXTRACTION DE LA BARRE DU FLUX AEM --- */
-nav.nav-container {
-  position: fixed !important; /* Fixé par rapport à l'ÉCRAN et non à la page */
+/* --- LE CONTENEUR FIXÉ TOUT EN HAUT --- */
+nav.super-nav-barre {
+  position: fixed !important;
   top: 0 !important;
   left: 0 !important;
-  width: 100vw !important; /* Prend toute la largeur de l'écran visible */
-  height: 54px !important; /* Hauteur fixe stricte */
+  width: 100vw !important;
+  height: 50px !important;
   background-color: #2c3e50 !important;
   font-family: Arial, sans-serif !important;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.4) !important;
-  z-index: 9999999 !important; /* Priorité maximale absolue sur AEM */
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3) !important;
+  z-index: 9999999 !important; /* Passe au-dessus d'AEM */
   display: block !important;
   box-sizing: border-box !important;
 }
 
-/* Forcer l'alignement horizontal strict de la liste */
-ul.nav-menu {
+/* --- FORCER L'ALIGNEMENT HORIZONTAL --- */
+ul.super-nav-liste {
   list-style-type: none !important;
   margin: 0 !important;
   padding: 0 !important;
   display: flex !important;
-  flex-direction: row !important; /* Force la ligne horizontale */
-  flex-wrap: nowrap !important;
-  justify-content: flex-start !important;
+  flex-direction: row !important; /* Force la ligne droite */
   align-items: center !important;
   height: 100% !important;
   background-color: #2c3e50 !important;
-  width: 100% !important;
 }
 
-/* Éléments principaux */
-li.nav-item {
+li.super-nav-item {
   position: relative !important;
   display: block !important;
   height: 100% !important;
@@ -37,70 +33,63 @@ li.nav-item {
   padding: 0 !important;
 }
 
-a.nav-link {
+a.super-nav-lien {
   display: flex !important;
   align-items: center !important;
   height: 100% !important;
   color: #ffffff !important;
   text-decoration: none !important;
-  padding: 0 25px !important;
+  padding: 0 20px !important;
   font-weight: bold !important;
   font-size: 15px !important;
-  cursor: pointer !important;
-  box-sizing: border-box !important;
-  border: none !important;
 }
 
-a.nav-link:hover {
+a.super-nav-lien:hover {
   background-color: #34495e !important;
 }
 
-/* --- SOUS-MENUS DÉROULANTS --- */
-ul.dropdown-menu {
+/* --- LE MENU DÉROULANT --- */
+ul.super-nav-deroulant {
   display: none !important; /* Caché par défaut */
   position: absolute !important;
-  top: 100% !important; /* S'affiche pile en dessous du bouton */
+  top: 100% !important;
   left: 0 !important;
   background-color: #ffffff !important;
-  min-width: 200px !important;
+  min-width: 180px !important;
   box-shadow: 0 8px 16px rgba(0,0,0,0.2) !important;
   list-style-type: none !important;
   padding: 5px 0 !important;
   margin: 0 !important;
-  border-radius: 0 0 5px 5px !important;
-  z-index: 99999999 !important;
+  border-radius: 0 0 4px 4px !important;
 }
 
-/* Les sous-éléments s'empilent verticalement UNIQUEMENT à l'intérieur du bloc déroulant */
-ul.dropdown-menu li {
+/* Les sous-liens s'empilent verticalement, mais UNIQUEMENT dans le carré blanc */
+ul.super-nav-deroulant li {
   display: block !important;
   width: 100% !important;
   height: auto !important;
 }
 
-a.dropdown-link {
+a.super-nav-souslien {
   color: #333333 !important;
-  padding: 12px 20px !important;
+  padding: 10px 15px !important;
   text-decoration: none !important;
   display: block !important;
   font-size: 14px !important;
   font-weight: normal !important;
   text-align: left !important;
-  box-sizing: border-box !important;
 }
 
-a.dropdown-link:hover {
+a.super-nav-souslien:hover {
   background-color: #f1f1f1 !important;
-  color: #333333 !important;
 }
 
-/* Déclenchement du menu déroulant au survol */
-li.nav-item:hover ul.dropdown-menu {
+/* Affichage au survol de la souris */
+li.super-nav-item:hover ul.super-nav-deroulant {
   display: block !important;
 }
 
-/* --- AJUSTEMENT DU RESTE DE LA PAGE --- */
-/* Comme le menu est "hors-flux", on pousse le body vers le bas pour ne pas cacher le haut du site */
+/* Décale le site vers le bas pour que le menu ne cache pas le haut de ta page */
 body {
-  padding-top: 54px !important;
+  padding-top: 50px !important;
 }
