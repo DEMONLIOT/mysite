@@ -1,95 +1,73 @@
-/* --- LE CONTENEUR FIXÉ TOUT EN HAUT --- */
-nav.super-nav-barre {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100vw !important;
-  height: 50px !important;
-  background-color: #2c3e50 !important;
-  font-family: Arial, sans-serif !important;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.3) !important;
-  z-index: 9999999 !important; /* Passe au-dessus d'AEM */
-  display: block !important;
-  box-sizing: border-box !important;
+/* --- TOUT EST VERROUILLÉ DIÈRE #eva-projet-nav --- */
+
+#eva-projet-nav {
+    width: 100% !important;
+    display: block !important;
+    background-color: #333 !important;
+    clear: both !important;
+    float: none !important;
 }
 
-/* --- FORCER L'ALIGNEMENT HORIZONTAL --- */
-ul.super-nav-liste {
-  list-style-type: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  display: flex !important;
-  flex-direction: row !important; /* Force la ligne droite */
-  align-items: center !important;
-  height: 100% !important;
-  background-color: #2c3e50 !important;
+/* Force la ligne horizontale uniquement pour NOTRE menu */
+#eva-projet-nav .nav-menu {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background-color: #333 !important;
 }
 
-li.super-nav-item {
-  position: relative !important;
-  display: block !important;
-  height: 100% !important;
-  margin: 0 !important;
-  padding: 0 !important;
+#eva-projet-nav .nav-item {
+    position: relative !important;
+    display: inline-block !important;
+    float: none !important;
 }
 
-a.super-nav-lien {
-  display: flex !important;
-  align-items: center !important;
-  height: 100% !important;
-  color: #ffffff !important;
-  text-decoration: none !important;
-  padding: 0 20px !important;
-  font-weight: bold !important;
-  font-size: 15px !important;
+#eva-projet-nav .nav-link {
+    display: block !important;
+    color: white !important;
+    text-decoration: none !important;
+    padding: 15px 20px !important;
 }
 
-a.super-nav-lien:hover {
-  background-color: #34495e !important;
+#eva-projet-nav .nav-link:hover {
+    background-color: #555 !important;
 }
 
-/* --- LE MENU DÉROULANT --- */
-ul.super-nav-deroulant {
-  display: none !important; /* Caché par défaut */
-  position: absolute !important;
-  top: 100% !important;
-  left: 0 !important;
-  background-color: #ffffff !important;
-  min-width: 180px !important;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.2) !important;
-  list-style-type: none !important;
-  padding: 5px 0 !important;
-  margin: 0 !important;
-  border-radius: 0 0 4px 4px !important;
+/* --- LE MENU DÉROULANT ISOLÉ --- */
+#eva-projet-nav .dropdown-menu {
+    display: none !important;
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    background-color: white !important;
+    list-style: none !important;
+    padding: 10px 0 !important;
+    margin: 0 !important;
+    box-shadow: 0px 4px 8px rgba(0,0,0,0.2) !important;
+    min-width: 160px !important;
+    z-index: 9999 !important;
 }
 
-/* Les sous-liens s'empilent verticalement, mais UNIQUEMENT dans le carré blanc */
-ul.super-nav-deroulant li {
-  display: block !important;
-  width: 100% !important;
-  height: auto !important;
+#eva-projet-nav .dropdown-menu li {
+    display: block !important;
+    width: 100% !important;
 }
 
-a.super-nav-souslien {
-  color: #333333 !important;
-  padding: 10px 15px !important;
-  text-decoration: none !important;
-  display: block !important;
-  font-size: 14px !important;
-  font-weight: normal !important;
-  text-align: left !important;
+#eva-projet-nav .dropdown-menu li a {
+    color: #333 !important;
+    padding: 10px 20px !important;
+    display: block !important;
+    text-decoration: none !important;
 }
 
-a.super-nav-souslien:hover {
-  background-color: #f1f1f1 !important;
+#eva-projet-nav .dropdown-menu li a:hover {
+    background-color: #f1f1f1 !important;
 }
 
-/* Affichage au survol de la souris */
-li.super-nav-item:hover ul.super-nav-deroulant {
-  display: block !important;
-}
-
-/* Décale le site vers le bas pour que le menu ne cache pas le haut de ta page */
-body {
-  padding-top: 50px !important;
+/* Affichage au survol */
+#eva-projet-nav .nav-item:hover .dropdown-menu {
+    display: block !important;
 }
