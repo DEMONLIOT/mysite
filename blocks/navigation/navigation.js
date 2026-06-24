@@ -1,72 +1,59 @@
+// 1. LE BOUCLIER : On désactive complètement la fonction d'impression sur cette page
+window.print = function() { 
+    console.log("🛡️ Tentative d'impression bloquée avec succès !"); 
+};
+
 (function() {
-    function construireMenuPropre() {
-        // 1. On cherche où sont tes éléments (tableaux, listes ou liens du bloc)
-        const blocOrigine = document.querySelector(".cmp-table, table, [role='table'], .cmp-navigation");
-        
-        // Sécurité : si la barre existe déjà ou qu'on ne trouve pas ton bloc, on arrête
-        if (!blocOrigine || document.querySelector("#eva-projet-nav")) return;
+    function calerMenuHorizontal() {
+        // 2. CIBLE UNIVERSELLE : On attrape ABSOLUMENT TOUT le composant où tu as mis ton menu
+        // (Qu'AEM l'ait généré en table, en div, en liste ou en texte)
+        const composantMenu = document.querySelector('.cmp-table, table, .cmp-navigation, .text, .htmlcontainer');
 
-        console.log("🎯 Bloc d'origine trouvé ! Reconstruction du menu...");
-
-        // 2. On extrait tous los liens textuels (les boutons de ton menu)
-        const liens = blocOrigine.querySelectorAll("a");
-        if (liens.length === 0) return;
-
-        // 3. On crée la nouvelle structure HTML ultra-propre et isolée
-        const navConteneur = document.createElement("nav");
-        navConteneur.id = "eva-projet-nav";
-
-        const ulPrincipal = document.createElement("ul");
-        ulPrincipal.className = "nav-menu";
-
-        // 4. On range tes liens dans notre nouvelle structure
-        liens.forEach(lien => {
-            // Si le lien contient une flèche ou le mot "Sous-partie", on l'ignorera ou on le traitera
-            // Pour faire simple, on recrée un bouton propre pour chaque lien trouvé
-            const li = document.createElement("li");
-            li.className = "nav-item";
+        if (composantMenu && !composantMenu.hasAttribute('data-menu-done')) {
             
-            // On clone le lien pour garder son adresse (href) et son texte
-            const nouveauLien = lien.cloneNode(true);
-            nouveauLien.className = "nav-link";
-            li.appendChild(nouveauLien);
+            // On lui colle un badge pour ne pas répéter l'action
+            composantMenu.setAttribute('data-menu-done', 'true');
             
-            ulPrincipal.appendChild(li);
-        });
+            // On force son ID pour que le CSS l'habille en noir
+            composantMenu.id = "eva-projet-nav-direct";
 
-        navConteneur.appendChild(ulPrincipal);
+            // On cherche toutes les structures à l'intérieur pour casser la verticale
+            const structures = composantMenu.querySelectorAll('table, tbody, tr, ul');
+            structures.forEach(el => {
+                el.style.setProperty('display', 'flex', 'important');
+                el.style.setProperty('flex-direction', 'row', 'important');
+                el.style.setProperty('flex-wrap', 'wrap', 'important');
+                el.style.setProperty('background-color', '#333', 'important');
+                el.style.setProperty('width', '100%', 'important');
+                el.style.setProperty('margin', '0', 'important');
+                el.style.setProperty('padding', '0', 'important');
+                el.style.setProperty('list-style', 'none', 'important');
+            });
 
-        // 5. Injection MAGIQUE tout en haut de la page du site
-        document.body.insertAdjacentElement('afterbegin', navConteneur);
+            // On couche les cellules / puces côte à côte
+            const cases = composantMenu.querySelectorAll('td, li');
+            cases.forEach(c => {
+                c.style.setProperty('display', 'block', 'important');
+                c.style.setProperty('padding', '0', 'important');
+                c.style.setProperty('margin', '0', 'important');
+                c.style.setProperty('border', 'none', 'important');
+            });
 
-        /* 6. OPTION DÉROULANT AUTOMATIQUE : 
-           Si un de tes liens s'appelle "Partie 1", on lui greffe un sous-menu en exemple.
-           Tu pourras modifier les textes ci-dessous pour coller à tes pages.
-        */
-        const items = ulPrincipal.querySelectorAll(".nav-item");
-        items.forEach(item => {
-            const txt = item.textContent.toLowerCase();
-            // Si le bouton s'appelle "partie 1" ou "projet", on lui crée son menu déroulant
-            if (txt.includes("partie 1") || txt.includes("▾")) {
-                const subUl = document.createElement("ul");
-                subUl.className = "dropdown-menu";
-                subUl.innerHTML = `
-                    <li><a href="#sous-page1">Sous-partie 1.1</a></li>
-                    <li><a href="#sous-page2">Sous-partie 1.2</a></li>
-                `;
-                item.appendChild(subUl);
-            }
-        });
+            // On stylise les liens (les boutons du menu)
+            const liens = composantMenu.querySelectorAll('a, p');
+            liens.forEach(l => {
+                l.style.setProperty('display', 'block', 'important');
+                l.style.setProperty('color', '#ffffff', 'important');
+                l.style.setProperty('padding', '15px 22px', 'important');
+                l.style.setProperty('text-decoration', 'none', 'important');
+                l.style.setProperty('font-family', 'sans-serif', 'important');
+                l.style.setProperty('font-weight', 'bold', 'important');
+            });
 
-        // 7. On cache le vieux bloc vertical d'AEM pour qu'il disparaisse de l'écran
-        blocOrigine.style.display = "none";
-
-        // Mission réussie, on coupe le chrono
-        clearInterval(chronoMenu);
+            clearInterval(chrono);
+        }
     }
 
-    // On cherche ton bloc toutes les 100ms au chargement de la page
-    const chronoMenu = setInterval(construireMenuPropre, 100);
-    // Sécurité d'arrêt après 8 secondes
-    setTimeout(() => clearInterval(chronoMenu), 8000);
+    const chrono = setInterval(calerMenuHorizontal, 50);
+    setTimeout(() => clearInterval(chrono), 8000);
 })();
