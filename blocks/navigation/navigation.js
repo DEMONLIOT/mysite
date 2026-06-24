@@ -1,69 +1,46 @@
-/* --- HABILLAGE DU MENU EN LIGNE --- */
-#eva-projet-nav-direct {
-    border-collapse: collapse !important;
-    border: none !important;
-    margin: 0 0 20px 0 !important;
-    padding: 0 !important;
-}
+(function() {
+    function forcerMenuHorizontal() {
+        // 1. On cherche la barre horizontale qu'on a créée en CSS
+        const barreHorizontale = document.querySelector("#eva-projet-nav-direct");
+        
+        // 2. On cherche le bloc vertical d'AEM où sont coincés tes éléments
+        // On cible large : les tables, les listes (ul), ou les blocs de liens d'AEM
+        const blocVertical = document.querySelector(".cmp-table, table, .cmp-navigation, ul.nav-menu");
 
-/* Style de chaque case (cellule) du menu */
-#eva-projet-nav-direct td {
-    position: relative !important;
-    padding: 0 !important;
-    border: none !important;
-    list-style: none !important;
-}
+        // Si on a trouvé le bloc vertical et qu'il n'est pas encore dans la barre
+        if (blocVertical && barreHorizontale) {
+            
+            // Si le bloc trouvé EST la barre elle-même, on ne fait rien
+            if (blocVertical.id === "eva-projet-nav-direct") return;
 
-/* Style des liens à l'intérieur des cases */
-#eva-projet-nav-direct td a,
-#eva-projet-nav-direct td p {
-    display: block !important;
-    color: #ffffff !important;
-    text-decoration: none !important;
-    padding: 15px 25px !important;
-    margin: 0 !important;
-    font-family: sans-serif !important;
-    font-weight: bold !important;
-    transition: background-color 0.2s ease;
-}
+            console.log("🎯 Bloc vertical trouvé ! Déplacement des éléments...");
 
-/* Effet au survol des boutons */
-#eva-projet-nav-direct td:hover {
-    background-color: #555555 !important;
-}
+            // MAGIE : On prend tous les éléments du bloc vertical et on les injecte dans la barre
+            while (blocVertical.firstChild) {
+                barreHorizontale.appendChild(blocVertical.firstChild);
+            }
 
-/* --- SYSTÈME DÉROULANT ULTRA-LÉGER --- */
-/* Si tu mets une liste 'ul' dans une cellule pour faire un sous-menu */
-#eva-projet-nav-direct td ul {
-    display: none !important;
-    position: absolute !important;
-    top: 100% !important;
-    left: 0 !important;
-    background-color: #ffffff !important;
-    list-style: none !important;
-    padding: 5px 0 !important;
-    margin: 0 !important;
-    box-shadow: 0px 4px 10px rgba(0,0,0,0.2) !important;
-    min-width: 160px !important;
-    z-index: 99999 !important;
-}
+            // On nettoie et on force la ligne horizontale sur tout ce qui est entré
+            barreHorizontale.style.display = "flex";
+            barreHorizontale.style.flexDirection = "row";
+            barreHorizontale.style.flexWrap = "nowrap";
 
-#eva-projet-nav-direct td ul li {
-    display: block !important;
-    width: 100% !important;
-}
+            // On applique la ligne sur les lignes de tableau si c'en était un
+            const lignes = barreHorizontale.querySelectorAll("tr");
+            lignes.forEach(l => {
+                l.style.display = "flex";
+                l.style.flexDirection = "row";
+            });
 
-#eva-projet-nav-direct td ul li a {
-    color: #333333 !important;
-    padding: 10px 20px !important;
-    font-weight: normal !important;
-}
+            // On cache l'ancien conteneur vertical vide pour qu'il ne pollue pas l'écran
+            blocVertical.style.display = "none";
 
-#eva-projet-nav-direct td ul li a:hover {
-    background-color: #f1f1f1 !important;
-}
+            // Mission réussie, on arrête de chercher
+            clearInterval(chronoCherche);
+        }
+    }
 
-/* Déclencheur du déroulant au survol */
-#eva-projet-nav-direct td:hover ul {
-    display: block !important;
-}
+    // On cherche et on applique toutes les 50 millisecondes
+    const chronoCherche = setInterval(forcerMenuHorizontal, 50);
+    setTimeout(() => clearInterval(chronoCherche), 8000);
+})();
